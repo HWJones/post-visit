@@ -1,0 +1,1463 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Derwent Flow Gauging · After the Field Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: field workbook. Compact sticky bar with step progress, one step at a time, a task list per step, fixed Back/Next bar at the bottom. */
+:root{
+  --bg:#EEF3F2; --surface:#FFFFFF; --sunk:#E3EBEA; --ink:#13262B; --muted:#4F6266; --line:#C3D1D0;
+  --river:#0D6B77; --river-soft:#D3E8EA; --on-river:#FFFFFF;
+  --flag:#C85A14; --flag-ink:#9E4210; --flag-soft:#F8E3D3; --flag-tint:#FCF1E8;
+  --warn-ink:#7A5200; --warn-bg:#FFF4DC;
+  --good:#22663E; --good-soft:#DBEEE1;
+  --m-expert:#7A5BB0; --m-float:#0D6B77; --m-slope:#A75E14; --m-dil:#2F5FB8;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Public Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0D191C; --surface:#14242A; --sunk:#0F1E22; --ink:#E1EBEA; --muted:#A3B6B9; --line:#30474D;
+  --river:#4FB5C1; --river-soft:#173A40; --on-river:#08181B;
+  --flag:#F0884A; --flag-ink:#F59A62; --flag-soft:#3D2416; --flag-tint:#24170F;
+  --warn-ink:#F2C766; --warn-bg:#33290F;
+  --good:#6FD096; --good-soft:#163323;
+  --m-expert:#B79CE6; --m-float:#4FB5C1; --m-slope:#E8A35C; --m-dil:#86AAF2; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0D191C; --surface:#14242A; --sunk:#0F1E22; --ink:#E1EBEA; --muted:#A3B6B9; --line:#30474D;
+  --river:#4FB5C1; --river-soft:#173A40; --on-river:#08181B;
+  --flag:#F0884A; --flag-ink:#F59A62; --flag-soft:#3D2416; --flag-tint:#24170F;
+  --warn-ink:#F2C766; --warn-bg:#33290F;
+  --good:#6FD096; --good-soft:#163323;
+  --m-expert:#B79CE6; --m-float:#4FB5C1; --m-slope:#E8A35C; --m-dil:#86AAF2; color-scheme:dark;
+}
+html{-webkit-text-size-adjust:100%}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+body:not(.m-field) .field-only, body:not(.m-remote) .remote-only, body:not(.ds-own) .own-only, body:not(.ds-example) .example-only{display:none!important}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:20px;padding-block:0 40px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(28px,5vw,42px);font-weight:800;letter-spacing:-.01em}
+h2{font-size:clamp(22px,3.4vw,27px);font-weight:700}
+h3{font-size:17px;font-weight:700}
+h1:focus,h2:focus{outline:none}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.hint{font-size:14px;color:var(--muted)}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+a{color:var(--river)}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--river);outline-offset:2px}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-20px;padding-inline:20px}
+.bar1{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding-block:8px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:15px;margin-right:auto;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;min-width:0}
+.chipmode{font-family:var(--f-body);font-weight:600;font-size:12.5px;background:var(--sunk);border:1px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.opts{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.optsBtn{display:none}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;background:var(--surface);padding:3px}
+.seg button{border:0;background:none;min-height:34px;padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13.5px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--river);color:var(--on-river);font-weight:600}
+.seglabel{font-size:12.5px;color:var(--muted);margin-right:4px}
+.saved{font-size:12.5px;color:var(--muted)}
+.saved.bad{color:var(--flag-ink);font-weight:600}
+.rail{list-style:none;margin:0;padding:4px 0 8px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin}
+.rail button{white-space:nowrap;border:1px solid transparent;background:none;cursor:pointer;min-height:38px;padding:6px 10px;border-radius:var(--r);font-size:14px;color:var(--muted);display:flex;gap:7px;align-items:center}
+.rail .n{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);border-radius:4px;min-width:20px;text-align:center;padding:0 4px}
+.rail .done .n{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.rail button[aria-current="step"]{color:var(--ink);background:var(--surface);border-color:var(--line);font-weight:600}
+.rail button[aria-current="step"] .n{background:var(--river);border-color:var(--river);color:var(--on-river)}
+.stepper{display:none;gap:6px;align-items:center;padding-block:4px 8px}
+.stepper select{flex:1;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:6px 10px;font-weight:600}
+.stepper .btn{min-width:44px}
+.progress{height:4px;background:var(--sunk);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.progress i{display:block;height:100%;background:var(--good);transition:width .3s}
+.dataPanel{border-top:1px solid var(--line);padding-block:12px;display:grid;gap:10px;max-height:70vh;overflow:auto}
+.dataPanel textarea{width:100%;min-height:90px;font-family:var(--f-mono);font-size:12.5px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:8px}
+
+/* ---------- bottom bar, toast, definitions ---------- */
+.bottombar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.bottombar .inner{max-width:1080px;margin:0 auto;display:flex;gap:10px;justify-content:space-between;align-items:center}
+.bottombar .where{font-size:13.5px;color:var(--muted);text-align:center;flex:1;min-width:0}
+.float{position:fixed;left:16px;right:16px;bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:40;max-width:620px;margin:0 auto;background:var(--ink);color:var(--bg);border-radius:var(--r);padding:12px 14px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.float .msg{flex:1;min-width:0;font-size:14.5px}
+.float button{background:none;border:1px solid currentColor;color:inherit;border-radius:6px;min-height:36px;padding:4px 12px;cursor:pointer;font-weight:600}
+.float.def{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+
+/* ---------- sections ---------- */
+section.step{display:grid;gap:22px;padding-top:24px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px;min-width:0}
+.method-head{display:grid;gap:8px;border-left:4px solid var(--mc,var(--river));padding-left:14px;max-width:72ch}
+.hero{display:grid;gap:10px;max-width:72ch}
+.lede{font-size:18px}
+ul.tidy,ol.tidy{margin:0;padding-left:20px;display:grid;gap:5px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:15px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0}
+.notes{display:grid;gap:8px}
+.note{display:grid;grid-template-columns:auto 1fr;gap:10px;font-size:15px;background:var(--sunk);border-radius:var(--r);padding:9px 11px;align-items:start}
+.note .tag{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding-top:3px;white-space:nowrap}
+.note .rowlink{background:none;border:0;color:var(--river);text-decoration:underline;cursor:pointer;padding:0;font-size:14px}
+.cue{background:var(--sunk);border-radius:var(--r);padding:12px 14px;display:grid;gap:6px}
+.okbox{background:var(--good-soft);color:var(--good);border-radius:var(--r);padding:10px 12px;font-size:15px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.okbox .btn{color:var(--ink)}
+details.more{border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+details.more>summary{cursor:pointer;padding:12px 14px;font-weight:600;min-height:44px}
+details.more>.body{padding:0 16px 14px;display:grid;gap:8px}
+figure{margin:0;display:grid;gap:6px;min-width:0}
+figcaption{font-size:13.5px;color:var(--muted)}
+.sk{width:100%;height:auto;display:block;max-width:560px}
+.sk text{fill:var(--ink);font-family:var(--f-body);font-size:13px}
+.sk .w{fill:var(--river-soft)} .sk .l{stroke:var(--ink);fill:none;stroke-width:1.5} .sk .r{stroke:var(--river);stroke-width:2.5;fill:none} .sk .m{fill:var(--muted)}
+.term{background:none;border:0;padding:0;color:inherit;font:inherit;text-decoration:underline dotted;text-decoration-color:var(--river);text-underline-offset:3px;cursor:help}
+.eq{font-family:var(--f-mono);font-size:15px;background:var(--sunk);border-radius:var(--r);padding:10px 12px;overflow-x:auto;white-space:nowrap}
+.modecards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.modecard{display:grid;gap:6px;text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:var(--r);padding:14px 16px;cursor:pointer}
+.modecard b{font-family:var(--f-display);font-size:18px}
+.modecard span{font-size:14.5px;color:var(--muted)}
+.modecard[aria-pressed="true"]{border-color:var(--river);background:var(--river-soft)}
+.modecard[aria-pressed="true"] b::after{content:" · selected";font-family:var(--f-body);font-size:13px;color:var(--river)}
+
+/* ---------- task list ---------- */
+.taskbox{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:14px 16px;display:grid;gap:8px}
+.taskbox h3{font-size:15px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.taskbox h3 .count{font-family:var(--f-body);font-weight:400;font-size:13.5px;color:var(--muted)}
+ol.tasks{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.task{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:flex-start;font-size:15px;min-height:36px;padding-block:4px}
+.task>span:not(.ticon):not(.tmiss),.task label{flex:1;min-width:0}
+.task label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.task input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--good);flex:none}
+.task .ticon{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:13px;font-weight:700;margin-top:1px}
+.task.done .ticon{background:var(--good);border-color:var(--good);color:var(--surface)}
+.task.done > span:not(.ticon):not(.tmiss), .task.done label span{color:var(--muted)}
+.tmiss{font-size:13px;color:var(--flag-ink);background:var(--flag-soft);border-radius:4px;padding:1px 7px;margin-left:32px}
+
+/* ---------- buttons, fields ---------- */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);min-height:40px;padding:6px 14px;cursor:pointer;font-size:14.5px;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.btn:hover{border-color:var(--river)}
+.btn.primary{background:var(--river);border-color:var(--river);color:var(--on-river);font-weight:600}
+.btn.small{min-height:36px;padding:4px 11px;font-size:13.5px}
+.btn.big{min-height:52px;font-size:17px;padding:8px 22px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn[aria-pressed="true"]{border-color:var(--river);background:var(--river-soft);font-weight:600}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dsbadge{font-size:12.5px;font-weight:600;border-radius:999px;padding:3px 10px;background:var(--sunk);border:1px solid var(--line);color:var(--muted)}
+.dsbadge.own{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.params{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-start}
+.field{display:grid;gap:4px;font-size:14px;min-width:0}
+.field>label{color:var(--ink);font-size:14px;font-weight:600}
+.req{color:var(--flag-ink);margin-left:2px}
+.inp{display:flex;align-items:center;border:1px solid var(--line);border-radius:6px;background:var(--surface);min-height:42px}
+.inp:focus-within{border-color:var(--river);box-shadow:0 0 0 1px var(--river)}
+.inp input{align-self:stretch;border:0;background:transparent;min-width:0;width:100%;padding:6px 8px;font-family:var(--f-mono);font-size:16px;outline:none}
+.inp input[readonly]{color:var(--muted)}
+.inp .u{padding-right:9px;color:var(--muted);font-size:13.5px;white-space:nowrap}
+.inp.bad{border-color:var(--flag);box-shadow:0 0 0 1px var(--flag)}
+.params .inp{width:150px}
+.fhint{font-size:13px;color:var(--warn-ink);max-width:28ch}
+.fhint:empty{display:none}
+select.sel{min-height:42px;border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:6px 8px;max-width:100%}
+.dep{border:1px dashed var(--line);background:var(--sunk);border-radius:var(--r);padding:8px 12px;font-size:14px;cursor:pointer;text-align:left;min-height:40px}
+.dep b{font-family:var(--f-mono)}
+
+/* ---------- tables ---------- */
+.tbl-wrap{overflow:auto;border:1px solid var(--line);border-radius:var(--r);max-height:440px;background:var(--surface)}
+table.data,table.rt{border-collapse:collapse;width:100%;font-size:14.5px}
+table.data th,table.rt th{position:sticky;top:0;background:var(--sunk);font-weight:600;font-size:12.5px;color:var(--muted);z-index:1;text-align:left;padding:7px 8px;white-space:nowrap}
+table.data td,table.rt td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+table.data td.c-num{font-family:var(--f-mono);width:44px;padding-top:12px}
+table.data .inp{min-width:84px}
+table.data td .val{display:inline-block;font-family:var(--f-mono);padding-top:6px}
+table.data td .val + .u{margin-left:4px;color:var(--muted);font-size:13px}
+table.data td.c-note{color:var(--muted);font-size:14px;min-width:140px}
+table.data td.c-note .inp input{font-family:var(--f-body);font-size:15px}
+tr.out td{background:var(--flag-tint)}
+tr.out .val, tr.out td:not(.c-status):not(.c-note) input{text-decoration:line-through;color:var(--muted)}
+tr.hl td{box-shadow:inset 0 2px 0 var(--river),inset 0 -2px 0 var(--river)}
+tr.flash td{background:var(--river-soft)}
+.incbtn{min-height:36px;min-width:96px;border-radius:999px;border:1.5px solid var(--good);background:var(--good-soft);color:var(--good);font-weight:600;font-size:13.5px;cursor:pointer;padding:2px 10px}
+.incbtn::before{content:"✓ "}
+.incbtn[aria-pressed="false"]{border-color:var(--flag);background:var(--flag-soft);color:var(--flag-ink)}
+.incbtn[aria-pressed="false"]::before{content:"✕ "}
+select.why{display:block;margin-top:6px;width:100%;min-width:150px;max-width:220px;min-height:36px;border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:4px 6px;font-size:14px}
+select.why.need{border-color:var(--flag);box-shadow:0 0 0 1px var(--flag)}
+.flagq{display:inline-block;margin-top:6px;font-size:12.5px;color:var(--warn-ink);background:var(--warn-bg);border-radius:4px;padding:1px 7px}
+.btn.icon{min-height:36px;padding:2px 10px;font-size:13px}
+tr.empty td{color:var(--muted);font-size:14.5px;padding:14px}
+.chip{font-size:14.5px;background:var(--sunk);border-radius:var(--r);padding:8px 12px}
+.chip b{font-family:var(--f-mono);font-weight:600}
+.chip .was{color:var(--muted)}
+
+/* ---------- messages, results ---------- */
+.msgs{display:grid;gap:6px}
+.msgs:empty{display:none}
+.msg-e,.msg-w{border-radius:var(--r);padding:8px 12px;font-size:14.5px}
+.msg-e{background:var(--flag-soft);color:var(--flag-ink)}
+.msg-w{background:var(--warn-bg);color:var(--warn-ink)}
+.msg-e b,.msg-w b{margin-right:4px}
+.check{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.fb:empty{display:none}
+.fb{font-size:15px;border-radius:var(--r);padding:9px 12px}
+.fb.ok{background:var(--good-soft);color:var(--good)}
+.fb.no{background:var(--flag-soft);color:var(--flag-ink)}
+ol.work{margin:0;padding-left:0;list-style:none;display:grid;gap:6px}
+ol.work:empty{display:none}
+ol.work li{font-family:var(--f-mono);font-size:14px;background:var(--sunk);border-radius:6px;padding:8px 10px;overflow-x:auto}
+ol.work li .why{display:block;font-family:var(--f-body);font-size:13.5px;color:var(--muted);margin-top:3px}
+.result{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;background:var(--sunk);border-radius:var(--r);padding:12px 14px}
+.result .big{font-family:var(--f-display);font-weight:800;font-size:32px;color:var(--mc,var(--river));font-variant-numeric:tabular-nums}
+.result .unit{font-size:15px;color:var(--muted);margin-left:4px;font-family:var(--f-body);font-weight:400}
+.result .rng{font-family:var(--f-mono);font-size:14px;color:var(--muted)}
+
+/* ---------- charts ---------- */
+.chart{width:100%;display:block;overflow:visible}
+.chart text{fill:var(--muted);font-family:var(--f-mono);font-size:12px}
+.chart .ink{fill:var(--ink)}
+.chart .axis{stroke:var(--line);fill:none}
+.chart .grid{stroke:var(--line);stroke-dasharray:2 3;fill:none}
+.chart .bad{fill:var(--surface);stroke:var(--flag);stroke-width:2}
+.chart .hlr{fill:none;stroke:var(--ink);stroke-width:2}
+.chart .badl{fill:var(--flag-ink)}
+
+/* ---------- logger ---------- */
+.logger{border:2px solid var(--river);border-radius:var(--r);padding:14px 16px;display:grid;gap:12px;background:var(--surface)}
+.lgrid{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-start}
+.lgrid .inp{width:170px}
+.lgrid .inp input{font-size:18px}
+.lerr{color:var(--flag-ink);font-size:14.5px}
+.lerr:empty{display:none}
+.logprompt{border:1px dashed var(--river);border-radius:var(--r);padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:15px}
+.sw{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.swd{font-family:var(--f-mono);font-size:30px;font-weight:600;min-width:120px;font-variant-numeric:tabular-nums}
+
+/* ---------- compare / reflect ---------- */
+.scen{display:grid;gap:8px}
+.opts2{display:flex;flex-wrap:wrap;gap:8px}
+.q textarea,.iq textarea{width:100%;min-height:96px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:10px 12px;resize:vertical;font-size:16px}
+.iq{border-left:4px solid var(--mc,var(--river))}
+.iq label{font-weight:600}
+textarea#report{width:100%;min-height:320px;font-family:var(--f-mono);font-size:13px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px}
+.ref{color:var(--river);font-size:13px;display:block;margin-top:3px}
+table.rt select{min-height:38px;border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:3px 6px}
+footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;display:grid;gap:4px}
+
+/* ---------- phones ---------- */
+@media (max-width:760px){
+  .rail{display:none}
+  .stepper{display:flex}
+  .optsBtn{display:inline-flex}
+  .opts{display:none;width:100%;padding-bottom:6px}
+  .opts.open{display:flex}
+}
+@media (max-width:640px){
+  .wrap{padding-inline:16px}
+  .topbar{margin-inline:-16px;padding-inline:16px}
+  .panel{padding:14px}
+  table.stack thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  table.stack,table.stack tbody{display:block}
+  table.stack tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 12px;padding:12px;border-bottom:1px solid var(--line)}
+  table.stack td{display:block;border:0;padding:0;min-width:0}
+  table.stack td::before{content:attr(data-label);display:block;font-size:12.5px;color:var(--muted);margin-bottom:2px;font-family:var(--f-body)}
+  table.stack td.c-num{order:-2;padding-top:0;width:auto}
+  table.stack td.c-status{order:-1}
+  table.stack td.c-note,table.stack td.c-del,table.stack td.full{grid-column:1/-1}
+  table.stack tr.empty{display:block}
+  table.stack tr.out{background:var(--flag-tint)}
+  table.stack tr.out td{background:none}
+  table.stack tr.hl td{box-shadow:none}
+  table.stack tr.hl{box-shadow:inset 4px 0 0 var(--river)}
+  table.stack td.c-note.none{display:none}
+  table.data td.c-note{min-width:0}
+  .stackwrap{max-height:none}
+  table.compact .c-note,table.compact .c-del{display:none}
+  table.data .inp{min-width:0}
+  .params .inp,.lgrid .inp{width:100%}
+  .params .field,.lgrid .field{flex:1 1 140px}
+  .bottombar .where{display:none}
+  .bottombar .btn{flex:1}
+}
+@media (pointer:coarse),(max-width:760px){
+  .btn,.btn.small,.btn.icon,.incbtn,select.why,select.sel,.seg button,table.rt select,.rail button,.optsBtn{min-height:44px}
+  .inp{min-height:46px}
+}
+@media (prefers-reduced-motion:no-preference){section.step{animation:rise .2s ease-out}@keyframes rise{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<div class="topbar" id="topbar">
+  <div class="bar1">
+    <div class="brand"><span>Derwent flow gauging</span><span class="chipmode" id="modeChip"></span></div>
+    <button type="button" class="btn small primary own-only" id="dataBtn" aria-expanded="false" aria-controls="dataPanel">Back up / share</button>
+  </div>
+  <div class="progress" aria-hidden="true"><i id="progBar" style="width:0"></i></div>
+  <ol class="rail" id="rail" aria-label="Activity steps"></ol>
+  <div class="stepper"><button type="button" class="btn" id="stPrev" aria-label="Previous step">‹</button><label for="stepSel" class="sr">Go to step</label><select id="stepSel"></select><button type="button" class="btn" id="stNext" aria-label="Next step">›</button></div>
+  <div class="dataPanel" id="dataPanel" hidden>
+    <h3>Back up or share your group's readings</h3>
+    <p class="hint"><b>This page doesn't save anything.</b> Once you've typed in your notebook readings, copy the code or download it as a file. A teammate can load it here, so only one person needs to type everything in.</p>
+    <div class="tools"><button type="button" class="btn primary" id="expCopy">Copy our data</button><button type="button" class="btn" id="expDl">Download as a file</button><span class="hint" id="expMsg" role="status"></span></div>
+    <textarea id="expText" readonly aria-label="Your group's data as text"></textarea>
+    <label for="impText" style="font-weight:600;font-size:14px">Load a teammate's data, or restore a backup</label>
+    <textarea id="impText" placeholder="Paste a data code here"></textarea>
+    <div class="tools"><label class="btn" for="impFile" style="cursor:pointer">Choose a backup file</label><input type="file" id="impFile" accept=".json,.txt,application/json,text/plain" class="sr"></div>
+    <div class="tools"><button type="button" class="btn" id="impMerge">Add their readings to ours</button><button type="button" class="btn" id="impReplace">Replace ours with theirs</button><span class="hint" id="impMsg" role="status"></span></div>
+  </div>
+</div>
+
+<!-- ================= STEP 1: BRIEF ================= -->
+<section class="step" data-step="brief">
+  <header class="hero">
+    <div class="eyebrow">Hydrology Field Work · CIVE7XXXX · Post-visit activity</div>
+    <h1 tabindex="-1">Measuring river flow on the Derwent</h1>
+    <p class="lede">Turn the field readings into four estimates of discharge: clean the data, do the calculations, then work out why the answers disagree and which method you would trust.</p>
+  </header>
+  <div class="taskbox"><h3>To do on this step <span class="count" id="tc-brief"></span></h3><ol class="tasks" id="tasks-brief"></ol></div>
+  <div class="panel">
+    <h2>Which data are you using?</h2>
+    <div class="modecards">
+      <button type="button" class="modecard" data-mode="field" aria-pressed="false"><b>I attended the field day</b><span>Type in your group's readings from your notebook, then clean and analyse them. The tables start empty.</span></button>
+      <button type="button" class="modecard" data-mode="remote" aria-pressed="false"><b>I couldn't attend</b><span>Use the readings a previous group took at the same reach, with their field notes and diagrams of how each method was set up.</span></button>
+    </div>
+    <p class="hint"><b>This page doesn't save anything.</b> If you reload or leave it, your work is gone. Try to finish in one sitting, back up typed-in readings with <i>Back up / share</i>, and copy your summary at Step 8. Haven't done the pre-visit guide yet? Do that first.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3>The study reach</h3>
+      <figure>
+        <svg class="sk" viewBox="0 0 360 210" role="img" aria-labelledby="reachCap">
+          <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" style="fill:var(--ink)"/></marker></defs>
+          <path class="w" d="M0,72 C80,60 160,66 240,74 S320,86 360,80 L360,142 C300,150 240,136 180,134 S70,130 0,140 Z"/>
+          <g class="r"><line x1="110" y1="56" x2="110" y2="148"/><line x1="190" y1="60" x2="190" y2="148"/><line x1="270" y1="66" x2="270" y2="152"/></g>
+          <text x="110" y="48" text-anchor="middle">T1 · 0 m</text><text x="190" y="52" text-anchor="middle">T2 · 10 m</text><text x="270" y="58" text-anchor="middle">T3 · 20 m</text>
+          <text x="110" y="166" text-anchor="middle" class="m" style="font-size:11px">upstream</text><text x="270" y="170" text-anchor="middle" class="m" style="font-size:11px">downstream</text>
+          <circle cx="24" cy="104" r="7" style="fill:var(--m-dil)"/><text x="24" y="128" text-anchor="middle" style="font-size:11px">salt in</text>
+          <rect x="331" y="104" width="13" height="13" style="fill:var(--m-dil)"/><text x="337" y="134" text-anchor="middle" style="font-size:11px">EC probe</text>
+          <line x1="140" y1="104" x2="236" y2="104" class="l" marker-end="url(#ah)"/><text x="188" y="98" text-anchor="middle">flow</text>
+          <text x="180" y="196" text-anchor="middle" class="m" style="font-size:11px">Plan view, not to scale. Salt goes in 50 m above the probe.</text>
+        </svg>
+        <figcaption id="reachCap">Plan view of the reach. Flow runs left to right. Transects T1 (upstream), T2 and T3 (downstream) are 10 m apart. Salt is added upstream and the EC probe sits downstream.</figcaption>
+      </figure>
+    </div>
+    <div class="panel remote-only">
+      <h3>Site conditions on the day</h3>
+      <dl class="kv">
+        <dt>Season</dt><dd>Late February, after two dry days</dd>
+        <dt>Bed</dt><dd>Cobbles and gravel with scattered boulders. A <button type="button" class="term" data-term="riffle">riffle</button> at the head of the reach.</dd>
+        <dt>Banks</dt><dd>Grassed right bank. Alder overhangs the left bank around 12–16 m.</dd>
+        <dt>Depth</dt><dd>Mostly below knee height, deepest near the middle</dd>
+        <dt>Water</dt><dd>Clear, cold, soft upland water</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="panel field-only">
+    <h3>Have these ready</h3>
+    <ul class="tidy"><li>Your field notebook, or a photo of your group's pages.</li><li>The EC logger file, if staff have shared one.</li><li>Your plan from the pre-visit guide, so you can judge how well your design worked.</li></ul>
+    <p class="hint">Type in every reading, including the ones that went wrong, and copy your notebook notes into the Note column. You'll decide what to exclude as you go.</p>
+  </div>
+  <div class="panel">
+    <h3>By the end of this activity you should be able to</h3>
+    <ol class="tidy">
+      <li>Explain the principles behind four methods of river flow gauging: expert estimation, float gauging, the slope-area method and dilution gauging.</li>
+      <li>Design and carry out basic field measurements of river discharge.</li>
+      <li>Process, clean and analyse discharge data.</li>
+      <li>Understand and evaluate uncertainty, error and bias in hydrological data.</li>
+    </ol>
+  </div>
+
+  <details class="more"><summary>Glossary of terms</summary><div class="body"><dl class="kv" id="glossary"></dl></div></details>
+</section>
+
+<!-- ================= STEP 2: EXPERT ================= -->
+<section class="step" data-step="expert" hidden>
+  <div class="method-head" style="--mc:var(--m-expert)">
+    <div class="eyebrow">Step 2 of 8 · Method 1 of 4</div>
+    <h2 tabindex="-1">Expert estimation</h2>
+    <p>Experienced hydrologists can often estimate <button type="button" class="term" data-term="discharge">discharge</button> to within a factor of two just by looking. Make your own estimate <b>before</b> you see anyone else's.</p>
+  </div>
+  <div class="taskbox"><h3>To do on this step <span class="count" id="tc-expert"></span></h3><ol class="tasks" id="tasks-expert"></ol></div>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Your estimate by eye</h3>
+      <p class="own-only">Enter the width, depth and velocity you wrote in your notebook before anyone measured.</p>
+      <ol class="tidy remote-only">
+        <li><b>Width:</b> pace it out, or compare it with something you know the size of.</li>
+        <li><b>Mean depth:</b> usually about two-thirds of the deepest point.</li>
+        <li><b>Mean velocity:</b> time a leaf over 2 m, then take about 85% of that speed. Water near the bed moves more slowly than the surface.</li>
+      </ol>
+      <div class="cue remote-only"><b>What you'd see from the bank</b><ul class="tidy"><li>About four adult strides from bank to bank</li><li>Deepest water just below knee height, shallower towards both banks</li><li>A floating leaf crosses 2 m in about 4 seconds</li></ul></div>
+      <div class="params">
+        <div class="field"><label for="exW">Width <span class="req" aria-hidden="true">*</span></label><span class="inp"><input id="exW" data-a="exW" inputmode="decimal" autocomplete="off" aria-required="true"><span class="u">m</span></span></div>
+        <div class="field"><label for="exD">Mean depth <span class="req" aria-hidden="true">*</span></label><span class="inp"><input id="exD" data-a="exD" inputmode="decimal" autocomplete="off" aria-required="true"><span class="u">m</span></span></div>
+        <div class="field"><label for="exV">Mean velocity <span class="req" aria-hidden="true">*</span></label><span class="inp"><input id="exV" data-a="exV" inputmode="decimal" autocomplete="off" aria-required="true"><span class="u">m/s</span></span></div>
+      </div>
+      <p class="hint"><span class="req">*</span> needed to lock in your estimate</p>
+      <p class="chip" id="exProd" aria-live="polite"></p>
+      <div class="tools" id="exLockRow"><button type="button" class="btn primary" id="exLock">Lock in my estimate</button><span class="hint" id="exLockHint"></span></div>
+      <div class="okbox" id="exLocked" hidden></div>
+    </div>
+    <div class="panel">
+      <h3>The group's estimates</h3>
+      <p class="hint" id="exGate">Lock in your estimate to see what the rest of the group guessed. Seeing other answers first would anchor your judgement.</p>
+      <div id="exGroup" style="display:grid;gap:12px" hidden>
+        <p class="hint">Everyone wrote their estimate down without looking at the others'. Exclude any you think shouldn't count, and say why.</p>
+        <div id="lg-expert"></div>
+        <div class="tools" id="tt-expert"></div>
+        <div class="tbl-wrap stackwrap" id="t-expert"></div>
+        <p class="chip" id="chip-expert" aria-live="polite"></p>
+        <figure><svg class="chart" id="cExpert" role="img" aria-describedby="cap-expert"></svg><figcaption id="cap-expert"></figcaption></figure>
+      </div>
+    </div>
+  </div>
+  <div id="iq-expert"></div>
+</section>
+
+<!-- ================= STEP 3: SURVEY ================= -->
+<section class="step" data-step="survey" hidden>
+  <div class="method-head" style="--mc:var(--river)">
+    <div class="eyebrow">Step 3 of 8 · Shared measurement</div>
+    <h2 tabindex="-1">Channel survey</h2>
+    <p>Float gauging and the slope-area method both need the channel's cross-sectional area <span class="mono">A</span>. Slope-area also needs the <button type="button" class="term" data-term="wetted">wetted perimeter</button> <span class="mono">P</span>. You get both by measuring depths across three <button type="button" class="term" data-term="transect">transects</button>.</p>
+  </div>
+  <div class="taskbox"><h3>To do on this step <span class="count" id="tc-survey"></span></h3><ol class="tasks" id="tasks-survey"></ol></div>
+  <div class="grid2">
+    <div class="panel">
+      <h3>How the transects are surveyed</h3>
+      <figure>
+        <svg class="sk" viewBox="0 0 360 170" role="img" aria-label="Cross-section with a tape across the top and depth verticals every 0.5 metres">
+          <path class="w" d="M20,50 L340,50 C320,120 260,140 180,142 C100,140 40,120 20,50 Z"/>
+          <path class="l" d="M10,40 L20,50 C40,120 100,140 180,142 C260,140 320,120 340,50 L350,40"/>
+          <line x1="10" y1="34" x2="350" y2="34" class="r" style="stroke-dasharray:6 3"/><text x="180" y="26" text-anchor="middle">tape, bank to bank</text>
+          <g style="stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3"><line x1="60" y1="50" x2="60" y2="104"/><line x1="100" y1="50" x2="100" y2="128"/><line x1="140" y1="50" x2="140" y2="139"/><line x1="180" y1="50" x2="180" y2="142"/><line x1="220" y1="50" x2="220" y2="139"/><line x1="260" y1="50" x2="260" y2="128"/><line x1="300" y1="50" x2="300" y2="104"/></g>
+          <rect x="177" y="40" width="6" height="104" style="fill:var(--m-slope)"/>
+          <text x="190" y="100">metre stick</text>
+          <text x="180" y="162" text-anchor="middle" class="m" style="font-size:11.5px">depth read every 0.5 m · water's edge = 0 m depth</text>
+        </svg>
+      </figure>
+      <ol class="tidy">
+        <li>Stretch a tape tight across the channel, bank to bank, at right angles to the flow.</li>
+        <li>Record the water's edge on each bank as depth 0 m.</li>
+        <li>Read the depth every 0.5 m with a metre stick, on its downstream face, so the bow wave doesn't push the reading up.</li>
+        <li>Repeat at T1 (0 m), T2 (10 m) and T3 (20 m).</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h3 class="example-only">Field notes from the previous group</h3>
+      <div class="notes example-only" id="n-survey"></div>
+      <h3 class="own-only">Your notes</h3>
+      <p class="hint own-only">Type in each transect from your notebook, including the water's edge (depth 0 m) on both banks.</p>
+      <div id="lg-xs"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>Cross-section profiles</h3>
+    <figure><svg class="chart" id="cXS" role="img" aria-describedby="cap-xs"></svg><figcaption id="cap-xs"></figcaption></figure>
+  </div>
+  <div class="grid3" id="xsTables"></div>
+  <div class="msgs" id="msg-survey" aria-live="polite"></div>
+  <div class="panel">
+    <h3>Results by transect</h3>
+    <div class="tbl-wrap stackwrap"><table class="rt stack" id="xsRes"></table></div>
+    <p class="hint">Area uses the <button type="button" class="term" data-term="trap">trapezium rule</button> between neighbouring depths: <span class="mono">A = Σ ½(dᵢ + dᵢ₊₁)(xᵢ₊₁ − xᵢ)</span>. Wetted perimeter adds up the sloping bed lengths: <span class="mono">P = Σ √(Δx² + Δd²)</span>.</p>
+    <p class="chip" id="xsWhatIf"></p>
+  </div>
+  <div id="iq-survey"></div>
+</section>
+
+<!-- ================= STEP 4: FLOAT ================= -->
+<section class="step" data-step="float" hidden>
+  <div class="method-head" style="--mc:var(--m-float)">
+    <div class="eyebrow">Step 4 of 8 · Method 2 of 4</div>
+    <h2 tabindex="-1">Float gauging</h2>
+    <p>Time a float over a measured reach to get the <b>surface</b> velocity. The surface moves faster than the water as a whole, so multiply by a <button type="button" class="term" data-term="kcoef">velocity coefficient k</button>, usually 0.8–0.9.</p>
+  </div>
+  <div class="taskbox"><h3>To do on this step <span class="count" id="tc-float"></span></h3><ol class="tasks" id="tasks-float"></ol></div>
+  <div class="grid2">
+    <div class="panel">
+      <h3>How it works</h3>
+      <figure>
+        <svg class="sk" viewBox="0 0 360 160" role="img" aria-label="Plan view: float released above T1, timed from T1 to T3 over 20 metres">
+          <path class="w" d="M0,40 L360,46 L360,124 L0,118 Z"/>
+          <line x1="90" y1="30" x2="90" y2="132" class="r"/><line x1="290" y1="34" x2="290" y2="136" class="r"/>
+          <text x="90" y="22" text-anchor="middle">T1 · start timing</text><text x="290" y="26" text-anchor="middle">T3 · stop timing</text>
+          <circle cx="40" cy="80" r="7" style="fill:var(--m-slope)"/><text x="40" y="104" text-anchor="middle" style="font-size:11px">release</text>
+          <path d="M48,80 C120,72 200,90 282,82" class="l" style="stroke-dasharray:4 4"/>
+          <line x1="90" y1="148" x2="290" y2="148" class="l"/><text x="190" y="143" text-anchor="middle">L = 20 m</text>
+        </svg>
+      </figure>
+      <div class="eq">Q = Ā × k × (L ÷ t̄)</div>
+      <p class="hint">Ā is the mean area from Step 3, L the reach length, and t̄ the mean travel time.</p>
+    </div>
+    <div class="panel">
+      <h3 class="example-only">Field notes from the previous group</h3>
+      <div class="notes example-only" id="n-float"></div>
+      <h3 class="own-only">From your notebook</h3><p class="hint own-only">Type in every run, including any that snagged or were mistimed, and copy your notes into the Note column.</p>
+    </div>
+  </div>
+  <div id="lg-float"></div>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Float runs</h3>
+      <div class="tools" id="tt-float"></div>
+      <div class="tbl-wrap stackwrap" id="t-float"></div>
+      <p class="chip" id="chip-float" aria-live="polite"></p>
+    </div>
+    <div class="panel">
+      <h3>Travel times</h3>
+      <figure><svg class="chart" id="cFloat" role="img" aria-describedby="cap-float"></svg><figcaption id="cap-float"></figcaption></figure>
+      <div class="params">
+        <div class="field"><label for="p-L">Reach length L <span class="req" aria-hidden="true">*</span></label><span class="inp"><input id="p-L" data-p="L" inputmode="decimal" aria-required="true" aria-describedby="ph-L"><span class="u">m</span></span><p class="fhint" id="ph-L"></p></div>
+        <div class="field"><label for="p-k">Coefficient k <span class="req" aria-hidden="true">*</span></label><span class="inp"><input id="p-k" data-p="k" inputmode="decimal" aria-required="true" aria-describedby="ph-k"><span class="u">no units</span></span><p class="fhint" id="ph-k"></p></div>
+      </div>
+      <button type="button" class="dep" data-go="survey" id="dep-float"></button>
+    </div>
+  </div>
+  <details class="more"><summary>What if we'd done fewer runs?</summary><div class="body">
+    <label for="fN" style="font-weight:600">Use only the first <output id="fNo">–</output> runs you kept</label>
+    <input type="range" id="fN" min="2" max="10" value="10" style="width:100%;max-width:420px;min-height:44px">
+    <p class="chip" id="fNout" aria-live="polite"></p>
+  </div></details>
+  <div id="res-float"></div>
+  <div id="iq-float"></div>
+</section>
+
+<!-- ================= STEP 5: SLOPE ================= -->
+<section class="step" data-step="slope" hidden>
+  <div class="method-head" style="--mc:var(--m-slope)">
+    <div class="eyebrow">Step 5 of 8 · Method 3 of 4</div>
+    <h2 tabindex="-1">Slope-area method</h2>
+    <p>No velocity measurement at all. Manning's equation predicts the flow from the channel's shape, the <button type="button" class="term" data-term="slope">water-surface slope</button> and the bed's roughness, <button type="button" class="term" data-term="manning">Manning's n</button>. It's also how flood peaks are estimated after the event, from debris lines.</p>
+  </div>
+  <div class="taskbox"><h3>To do on this step <span class="count" id="tc-slope"></span></h3><ol class="tasks" id="tasks-slope"></ol></div>
+  <div class="grid2">
+    <div class="panel">
+      <h3>How it works</h3>
+      <figure>
+        <svg class="sk" viewBox="0 0 360 170" role="img" aria-label="Side view: auto-level sighting a staff at T1 and at T3; the water surface falls by delta h between them">
+          <path class="w" d="M40,92 L320,112 L320,150 L40,150 Z"/>
+          <line x1="40" y1="92" x2="320" y2="112" class="r"/>
+          <path class="l" d="M20,150 L340,150"/>
+          <rect x="74" y="34" width="6" height="60" style="fill:var(--m-slope)"/><rect x="284" y="34" width="6" height="80" style="fill:var(--m-slope)"/>
+          <text x="77" y="28" text-anchor="middle">staff at T1</text><text x="287" y="28" text-anchor="middle">staff at T3</text>
+          <path d="M170,60 L180,40 L190,60" class="l"/><rect x="170" y="38" width="20" height="6" style="fill:var(--ink)"/>
+          <line x1="80" y1="41" x2="284" y2="41" style="stroke:var(--muted);stroke-dasharray:4 3"/>
+          <text x="180" y="76" text-anchor="middle" style="font-size:11.5px">auto-level</text>
+          <line x1="300" y1="94" x2="300" y2="112" class="l"/><text x="306" y="106" style="font-size:12px">Δh</text>
+          <text x="180" y="166" text-anchor="middle" class="m" style="font-size:11.5px">bigger staff reading = lower water surface</text>
+        </svg>
+      </figure>
+      <div class="eq">Q = (1/n) × A × R<sup>2/3</sup> × S<sup>1/2</sup></div>
+      <p class="hint"><span class="mono">R = A ÷ P</span> is the <button type="button" class="term" data-term="hradius">hydraulic radius</button>. <span class="mono">S = Δh ÷ L</span> is the slope. The equation assumes <button type="button" class="term" data-term="uniform">uniform flow</button>.</p>
+    </div>
+    <div class="panel">
+      <h3 class="example-only">Field notes from the previous group</h3>
+      <div class="notes example-only" id="n-slope"></div>
+      <h3 class="own-only">From your notebook</h3><p class="hint own-only">Type in every staff reading at T1 and T3. Put who read the staff in the Note column, so you can spot reader differences.</p>
+      <div id="lg-slope"></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Staff readings</h3>
+      <div style="display:grid;gap:8px;min-width:0"><b>Upstream, at T1</b><div class="tools" id="tt-up"></div><div class="tbl-wrap stackwrap" id="t-up"></div></div>
+      <div style="display:grid;gap:8px;min-width:0"><b>Downstream, at T3</b><div class="tools" id="tt-down"></div><div class="tbl-wrap stackwrap" id="t-down"></div></div>
+      <p class="chip" id="chip-slope" aria-live="polite"></p>
+    </div>
+    <div class="panel">
+      <h3>Water-surface levels</h3>
+      <figure><svg class="chart" id="cSlope" role="img" aria-describedby="cap-slope"></svg><figcaption id="cap-slope"></figcaption></figure>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>Choose Manning's n</h3>
+    <p class="hint">Typical values for natural channels (after Chow, 1959). The range shows how much reasonable people might disagree.</p>
+    <div class="field"><label for="nType">Which description best fits this reach? <span class="req" aria-hidden="true">*</span></label><select class="sel" id="nType" aria-required="true"></select></div>
+    <div class="params">
+      <div class="field"><label for="p-n">n used <span class="req" aria-hidden="true">*</span></label><span class="inp"><input id="p-n" data-p="n" inputmode="decimal" aria-describedby="ph-n"><span class="u">s/m<sup>1/3</sup></span></span><p class="fhint" id="ph-n"></p></div>
+      <div class="field"><label for="p-slopeL">Distance T1 to T3 <span class="req" aria-hidden="true">*</span></label><span class="inp"><input id="p-slopeL" data-p="slopeL" inputmode="decimal" aria-describedby="ph-slopeL"><span class="u">m</span></span><p class="fhint" id="ph-slopeL"></p></div>
+    </div>
+    <button type="button" class="dep" data-go="survey" id="dep-slope"></button>
+  </div>
+  <div id="res-slope"></div>
+  <div id="iq-slope"></div>
+</section>
+
+<!-- ================= STEP 6: DILUTION ================= -->
+<section class="step" data-step="dil" hidden>
+  <div class="method-head" style="--mc:var(--m-dil)">
+    <div class="eyebrow">Step 6 of 8 · Method 4 of 4</div>
+    <h2 tabindex="-1">Dilution gauging (salt slug)</h2>
+    <p>Tip a known mass of dissolved salt into the stream. Downstream, a meter logs the <button type="button" class="term" data-term="ec">electrical conductivity (EC)</button> as the salt cloud passes. More water dilutes the salt more, so a smaller area under the curve means a bigger flow.</p>
+  </div>
+  <div class="taskbox"><h3>To do on this step <span class="count" id="tc-dil"></span></h3><ol class="tasks" id="tasks-dil"></ol></div>
+  <div class="grid2">
+    <div class="panel">
+      <h3>How it works</h3>
+      <figure>
+        <svg class="sk" viewBox="0 0 360 150" role="img" aria-label="Plan view: salt tipped in at a riffle, mixes over 50 metres, EC probe downstream logs every 5 seconds">
+          <path class="w" d="M0,44 L360,52 L360,116 L0,108 Z"/>
+          <rect x="22" y="62" width="22" height="22" rx="3" style="fill:var(--m-dil)"/><text x="33" y="34" text-anchor="middle" style="font-size:11.5px">salt bucket</text>
+          <path d="M50,76 C110,60 150,98 210,72 S290,84 316,80" class="l" style="stroke-dasharray:3 3"/>
+          <rect x="318" y="74" width="12" height="12" style="fill:var(--ink)"/><text x="324" y="38" text-anchor="middle" style="font-size:11.5px">EC probe</text>
+          <line x1="44" y1="130" x2="318" y2="130" class="l"/><text x="180" y="146" text-anchor="middle" style="font-size:12px">mixing length ≈ 50 m · EC logged every 5 s</text>
+        </svg>
+      </figure>
+      <div class="eq">Q = M ÷ ∫(C − C<sub>b</sub>) dt</div>
+      <p class="hint">M is the salt mass. The area is measured in EC, then converted to concentration C with the calibration factor <button type="button" class="term" data-term="kc">k<sub>c</sub></button>. <button type="button" class="term" data-term="bg">EC<sub>b</sub></button> is the background before the salt arrives. The salt needs a long enough <button type="button" class="term" data-term="mixing">mixing length</button>.</p>
+    </div>
+    <div class="panel">
+      <h3 class="example-only">Field notes from the previous group</h3>
+      <div class="notes example-only" id="n-dil"></div>
+      <h3 class="own-only">From your notebook</h3><p class="hint own-only">Type in the calibration standards and the EC readings. If staff shared the logger file, import it under the EC table instead of typing.</p>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="panel">
+      <h3>1 · Calibration: EC to concentration</h3>
+      <div id="lg-cal"></div>
+      <div class="tools" id="tt-cal"></div>
+      <div class="tbl-wrap stackwrap" id="t-cal"></div>
+      <p class="chip" id="chip-cal" aria-live="polite"></p>
+    </div>
+    <div class="panel">
+      <h3>Calibration line</h3>
+      <figure><svg class="chart" id="cCal" role="img" aria-describedby="cap-cal"></svg><figcaption id="cap-cal"></figcaption></figure>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>2 · The salt cloud passing the probe</h3>
+    <div class="params">
+      <div class="field"><label for="p-M">Salt mass M <span class="req" aria-hidden="true">*</span></label><span class="inp"><input id="p-M" data-p="M" inputmode="decimal" aria-describedby="ph-M"><span class="u">g</span></span><p class="fhint" id="ph-M"></p></div>
+      <div class="field"><label for="p-bgEnd">Background = readings before</label><span class="inp"><input id="p-bgEnd" data-p="bgEnd" inputmode="decimal" aria-describedby="ph-bgEnd"><span class="u">s</span></span><p class="fhint" id="ph-bgEnd"></p></div>
+    </div>
+    <p class="hint">Choose where the background ends: the readings before the salt starts to arrive. Watch the grey window on the chart.</p>
+    <figure><svg class="chart" id="cDil" role="img" aria-describedby="cap-dil"></svg><figcaption id="cap-dil"></figcaption></figure>
+    <div id="lg-dil"></div>
+    <div class="tools" id="tt-dil"></div>
+    <div class="tbl-wrap" id="t-dil"></div>
+    <p class="chip" id="chip-dil" aria-live="polite"></p>
+  </div>
+  <div id="res-dil"></div>
+  <div id="iq-dil"></div>
+</section>
+
+<!-- ================= STEP 7: COMPARE ================= -->
+<section class="step" data-step="compare" hidden>
+  <div class="method-head">
+    <div class="eyebrow">Step 7 of 8 · Compare</div>
+    <h2 tabindex="-1">Four answers, one river</h2>
+    <p>There's no "true" value, only four estimates with different kinds of uncertainty. Overlapping ranges mean the methods are consistent. A gap means an assumption has failed somewhere.</p>
+  </div>
+  <div class="taskbox"><h3>To do on this step <span class="count" id="tc-compare"></span></h3><ol class="tasks" id="tasks-compare"></ol></div>
+  <div class="panel">
+    <figure><svg class="chart" id="cCmp" role="img" aria-describedby="cap-cmp"></svg><figcaption id="cap-cmp"></figcaption></figure>
+    <p class="hint"><b>Read the ranges carefully.</b> Each bar comes from a different source of uncertainty, so a long bar doesn't always mean a worse method. The expert bar (dashed) shows how much people's guesses differed, not measurement error.</p>
+    <div class="tbl-wrap stackwrap"><table class="rt stack" id="cmpTbl"></table></div>
+  </div>
+  <div class="panel">
+    <h3>Rate each method</h3>
+    <p class="hint">Give your own rating in every box. The staff view unlocks once all 20 are filled in.</p>
+    <div class="tbl-wrap stackwrap"><table class="rt stack" id="matrix"></table></div>
+    <div class="tools"><button type="button" class="btn" id="revealRef" disabled>Show staff view</button><span class="hint" id="rateCount" aria-live="polite"></span></div>
+  </div>
+  <div class="panel">
+    <h3>Which method would you use?</h3>
+    <div id="scen" style="display:grid;gap:20px"></div>
+  </div>
+</section>
+
+<!-- ================= STEP 8: REFLECT ================= -->
+<section class="step" data-step="reflect" hidden>
+  <div class="method-head">
+    <div class="eyebrow">Step 8 of 8 · Reflect</div>
+    <h2 tabindex="-1">Reflection and summary</h2>
+    <p>Write short, specific answers that refer to your own numbers. Your answers to each step's question are already in the summary below.</p>
+  </div>
+  <div class="taskbox"><h3>To do on this step <span class="count" id="tc-reflect"></span></h3><ol class="tasks" id="tasks-reflect"></ol></div>
+  <div class="grid2" id="refl"></div>
+  <div class="panel">
+    <h3>Your summary</h3>
+    <p class="hint">Everything in one block: results, exclusions and why, and all your answers. This page doesn't save anything. If you reload it or leave it, your work is gone, so copy the summary into your report or group plan before you go.</p>
+    <div class="tools"><button type="button" class="btn primary" id="copyRep">Copy summary</button><span class="hint" id="copyMsg" role="status"></span></div>
+    <textarea id="report" readonly aria-label="Summary text"></textarea>
+  </div>
+  <div class="panel">
+    <h3>Start again</h3>
+    <p class="hint">Clears your estimate, exclusions, ratings and answers. Readings you typed in from your notebook are kept.</p>
+    <div class="tools"><button type="button" class="btn" id="resetAll">Reset my work</button></div>
+    <div class="msg-e" id="resetConfirm" hidden><p><b>Reset all your work?</b> You can't undo this.</p><div class="tools" style="margin-top:8px"><button type="button" class="btn primary" id="resetYes">Yes, reset</button><button type="button" class="btn" id="resetNo">Cancel</button></div></div>
+  </div>
+</section>
+
+<footer>
+  <span>The example readings are an illustrative teaching dataset built to behave like a February flow on a small Derwent tributary.</span>
+  <!-- For staff: replace the example data (EX) and add site photos (PHOTOS) at the top of the script. -->
+  <span>Manning's n ranges after Chow, V.T. (1959) <i>Open-Channel Hydraulics</i>.</span>
+</footer>
+</div>
+
+<nav class="bottombar" aria-label="Step navigation"><div class="inner">
+  <button type="button" class="btn" id="navBack">← Back</button>
+  <span class="where" id="navWhere"></span>
+  <button type="button" class="btn primary" id="navNext">Next →</button>
+</div></nav>
+<div class="float" id="toast" role="status" aria-live="polite" hidden><span class="msg" id="toastMsg"></span><button type="button" id="toastUndo" hidden>Undo</button><button type="button" id="toastX" aria-label="Dismiss">×</button></div>
+<div class="float def" id="defbox" role="dialog" aria-labelledby="defTitle" hidden><span class="msg"><b id="defTitle"></b><br><span id="defBody"></span></span><button type="button" id="defX" aria-label="Close definition">×</button></div>
+
+<script>
+document.documentElement.lang="en-GB";
+/* ======================================================================
+   EXAMPLE DATA (staff: replace with archived student data)
+   ====================================================================== */
+const EX = {
+  expert: [
+    {name:"Student A", q:0.5},{name:"Student B", q:1.2},{name:"Student C", q:0.8},{name:"Student D", q:0.6},
+    {name:"Student E", q:3.0, note:"Judged from the fast riffle below the footbridge"},
+    {name:"Student F", q:0.9},{name:"Student G", q:0.7},{name:"Student H", q:0.05}
+  ],
+  xs: {
+    T1: [[0,0],[0.5,0.16],[1.0,0.27],[1.5,0.33],[2.0,0.38],[2.5,0.42],[3.0,0.45],[3.5,0.44],[4.0,0.40],[4.5,0.35],[5.0,0.28],[5.5,0.17],[6.1,0]],
+    T2: [[0,0],[0.5,0.14],[1.0,0.24],[1.5,0.31],[2.0,0.36],[2.5,0.39],[3.0,1.40],[3.5,0.41],[4.0,0.38],[4.5,0.33],[5.0,0.27],[5.5,0.20],[6.0,0.11],[6.4,0]],
+    T3: [[0,0],[0.5,0.19],[1.0,0.30],[1.5,0.37],[2.0,0.43],[2.5,0.47],[3.0,0.48],[3.5,0.44],[4.0,0.37],[4.5,0.29],[5.0,0.18],[5.7,0]]
+  },
+  float: [
+    {t:41.2,pos:"Centre"},{t:38.7,pos:"Centre"},{t:44.0,pos:"Left third"},{t:39.5,pos:"Centre"},
+    {t:91.3,pos:"Left third",note:"Caught under alder, freed by hand"},{t:40.8,pos:"Centre"},{t:12.4,pos:"Centre"},
+    {t:42.1,pos:"Right third"},{t:37.9,pos:"Centre"},{t:43.5,pos:"Right third"}
+  ],
+  up:[{r:1.412},{r:1.408},{r:1.415},{r:1.411}],
+  down:[{r:1.471},{r:1.468},{r:1.574},{r:1.473}],
+  cal:[{c:0,ec:58.9},{c:25,ec:108.6},{c:50,ec:157.8},{c:75,ec:248.3},{c:100,ec:256.4},{c:150,ec:356.5},{c:200,ec:455.1}],
+  p:{L:20,k:0.85,slopeL:20,M:1000,bgEnd:30}
+};
+/* Site photos: add {src:"...", caption:"..."} items to show them with the field notes for that step. */
+const PHOTOS = {survey:[], float:[], slope:[], dil:[]};
+const NOTES = {
+  survey:[["All transects","Depths read on the downstream face of the metre stick to reduce the bow wave."],["Recording","The wader called out readings and a student on the bank wrote them down."]],
+  float:[["Floats","Oranges, released 3 m above T1."],["Run 5","Float caught under alder on the left bank and was freed by hand.","float:4"],["Wind","Light breeze, gusting at times."]],
+  slope:[["Set-up","Auto-level on the right bank, one set-up, both staff positions visible."],["Readers","Two students took turns reading the staff."]],
+  dil:[["Salt","1000 g of table salt (NaCl) dissolved in a 10 L bucket of stream water."],["Mixing","Tipped in mid-channel at a riffle, 50 m above the EC probe."],["t = 150 s","Wader repositioned the probe.","dil:30"],["End","Logging stopped at 360 s."]]
+};
+function genDil(){
+  let s=20260223; const rnd=()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+  const gauss=()=>{let u=0,v=0;while(!u)u=rnd();while(!v)v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+  const rows=[];
+  for(let t=0;t<=360;t+=5){let ec=58.9+gauss()*0.35;const x=t-30;if(x>0)ec+=0.0792*x*x*Math.exp(-x/25);if(t===150)ec+=17.5;rows.push({t,ec:Math.round(ec*10)/10})}
+  return rows;
+}
+
+/* ======================================================================
+   CONSTANTS
+   ====================================================================== */
+const XS=["T1","T2","T3"];
+const NTYPES=[
+  {label:"Clean and straight, no rifts or deep pools",min:0.025,nor:0.030,max:0.033},
+  {label:"Clean and winding, some pools and shoals",min:0.033,nor:0.040,max:0.045},
+  {label:"Mountain stream: gravel and cobbles, few boulders",min:0.030,nor:0.040,max:0.050},
+  {label:"Mountain stream: cobbles with large boulders",min:0.040,nor:0.050,max:0.070}
+];
+const REASONS=["Obstruction or snag","Misread or typo","Units error","Timing error","Instrument disturbed","Doesn't fit, cause unknown","Other"];
+const METHODS=[{k:"expert",name:"Expert estimation",c:"--m-expert",step:"expert",n:2},{k:"float",name:"Float gauging",c:"--m-float",step:"float",n:4},{k:"slope",name:"Slope-area",c:"--m-slope",step:"slope",n:5},{k:"dil",name:"Dilution gauging",c:"--m-dil",step:"dil",n:6}];
+const BASIS={expert:"spread of the group's guesses",float:"k from 0.80 to 0.90, plus timing error",slope:"Manning's n range for the channel type",dil:"background EC ± 1 standard deviation"};
+const TERMS={
+  discharge:["Discharge (Q)","The volume of water passing a cross-section each second, in m³/s. 1 m³/s is 1000 litres per second."],
+  transect:["Transect","A line across the channel, bank to bank, along which you measure depths."],
+  thalweg:["Thalweg","The line along the channel joining its deepest points, where the flow is usually fastest."],
+  riffle:["Riffle","A shallow, fast stretch of broken water over gravel or cobbles."],
+  wetted:["Wetted perimeter (P)","The length of bed and banks in contact with the water at a cross-section, in metres."],
+  hradius:["Hydraulic radius (R)","R = A ÷ P. Deep, narrow channels have a larger R and lose less energy to friction than shallow, wide ones with the same area."],
+  manning:["Manning's n","How much the bed and banks resist the flow. Smooth concrete is about 0.013; a cobble and boulder mountain stream can be 0.04–0.07. Higher n means slower flow for the same slope."],
+  slope:["Water-surface slope (S)","The fall in water level divided by the distance along the channel. It has no units (metres per metre)."],
+  uniform:["Uniform flow","Depth, velocity and cross-section stay the same all along the reach. Manning's equation assumes this."],
+  kcoef:["Velocity coefficient (k)","Mean velocity ÷ surface velocity. Friction slows water near the bed, so k is below 1: usually 0.8–0.9 on rough beds."],
+  se:["Standard error (SE)","How precisely a mean is known: standard deviation ÷ √(number of readings). It shrinks as you take more readings."],
+  trap:["Trapezium rule","Splits an area into strips and treats each as a trapezium: ½ × (left height + right height) × width, then adds them up."],
+  ec:["Electrical conductivity (EC)","How easily water conducts electricity. It rises as more salt dissolves. Measured in microsiemens per centimetre (µS/cm)."],
+  bg:["Background EC (EC_b)","The stream's natural conductivity before the salt arrives. It's subtracted so only the added salt is counted."],
+  kc:["Calibration factor (k_c)","Converts a change in EC (µS/cm) into salt concentration (mg/L). It's 1 ÷ the slope of the calibration line."],
+  mixing:["Mixing length","How far downstream the salt needs to travel to spread evenly across the whole channel."],
+  level:["Auto-level and staff","A levelled surveying telescope read against a graduated staff. A bigger staff reading means the foot of the staff is lower."],
+  btc:["Breakthrough curve","The rise and fall in EC at the probe as the salt cloud passes."]
+};
+const INTERP={
+  expert:"Compare your locked-in estimate with the group median. Which did you misjudge most: width, depth or speed? Did anything bias the group's guesses?",
+  survey:"Which transect best represents the reach, and why? What would happen to Q if you only surveyed one?",
+  float:"Which matters most here: the choice of k, timing error or where the floats were released? Could any of them push Q consistently too high or too low?",
+  slope:"How much does Q change across the n range? What does that tell you about relying on this method?",
+  dil:"What has to be true about mixing for this method to work, and how could you check it on site?"
+};
+const REFL=[
+  ["clean","Errors and anomalies","Which readings did you exclude, and why? Which errors were random (scatter) and which were systematic (pushing results one way)?"],
+  ["differ","Why the estimates differ","Why do your four estimates differ? Refer to measurement uncertainty, each method's assumptions (k, n, full mixing, uniform flow) and the sampling design."],
+  ["bias","Bias","Where could bias have entered the data: who measured, where floats were released, how n was chosen, or what people saw before they estimated?"],
+  ["realworld","Choosing a method","Which method, or combination of methods, would you use to monitor a similar stream long term, and why? Consider accuracy, complexity, equipment, cost, safety and river conditions."]
+];
+const SCEN=[
+  {q:"You have 20 minutes at a remote upland stream to decide whether it's worth coming back with gauging kit.",a:"expert",fb:{expert:"A trained eye gives an order-of-magnitude answer in minutes, and that's all this decision needs.",float:"Possible, but you'd also need a cross-section survey. That's more effort than the decision needs.",slope:"Far too much survey work for a yes/no decision.",dil:"You'd need salt, a calibrated EC meter and time for mixing. More than this decision needs."}},
+  {q:"A steep, boulder-strewn beck where depths change every half metre and a current meter can't be held steady.",a:"dil",fb:{dil:"The turbulence that defeats velocity-area methods is exactly what gives dilution gauging the full mixing it relies on.",float:"Floats snag and take odd paths here, and the uneven bed makes the area very uncertain.",slope:"The flow isn't uniform, and n is very uncertain in boulder beds.",expert:"Fine for a first guess, but this stream needs a measurement."}},
+  {q:"Estimating the peak flow of last week's flood, using debris lines and surveyed cross-sections.",a:"slope",fb:{slope:"The flood has gone, so only the channel shape and high-water marks are left. Manning's equation is the standard indirect method.",float:"The flood has passed, so there's nothing left to time.",dil:"You can't add salt to an event that's over.",expert:"Eyewitness guesses help, but slope-area gives a defensible number."}},
+  {q:"A wide, deep lowland river in flood, gauged from a road bridge with little kit and no safe wading.",a:"float",fb:{float:"Floats can be dropped and timed from the bridge, and bridge drawings or a weighted line give the area. Choose k carefully.",dil:"The salt needed for a large flow is impractical, and it would take a very long distance to mix.",slope:"You can't survey safely in flood, and the bridge disturbs the flow.",expert:"A useful check, but you can do better from the bridge."}}
+];
+const CRIT=["Accuracy","Complexity","Equipment needed","Cost","Safety risk"];
+const REF={
+  expert:{v:["Low","Low","Low","Low","Low"],best:"Quick checks, sanity-checking other methods, planning a visit"},
+  float:{v:["Low–Medium","Low","Low","Low","Low–Medium"],best:"Straight, even reaches; high flows timed from a bridge; quick checks"},
+  slope:{v:["Medium (depends on n)","Medium","Medium","Medium","Medium"],best:"Estimating flood peaks after the event; reaches with steady, even flow"},
+  dil:{v:["High in turbulent flow","Medium","Medium","Low–Medium","Low"],best:"Small, steep, rocky, turbulent streams that mix well; not large rivers or reaches with slack water"}
+};
+const STEPS=[
+  {k:"brief",name:"Brief"},{k:"expert",name:"Expert estimate"},{k:"survey",name:"Channel survey"},
+  {k:"float",name:"Float gauging"},{k:"slope",name:"Slope-area"},{k:"dil",name:"Dilution gauging"},
+  {k:"compare",name:"Compare"},{k:"reflect",name:"Reflect"}
+];
+const TBL={
+  expert:{row:"Estimate",cols:[{k:"name",l:"Who",t:"text"},{k:"q",l:"Q",u:"m³/s",min:0,max:100}]},
+  T1:{row:"Point",cols:[{k:"x",l:"Distance",u:"m",min:0,max:100},{k:"d",l:"Depth",u:"m",min:0,max:3}],noNote:true},
+  T2:{row:"Point",cols:[{k:"x",l:"Distance",u:"m",min:0,max:100},{k:"d",l:"Depth",u:"m",min:0,max:3}],noNote:true},
+  T3:{row:"Point",cols:[{k:"x",l:"Distance",u:"m",min:0,max:100},{k:"d",l:"Depth",u:"m",min:0,max:3}],noNote:true},
+  float:{row:"Run",cols:[{k:"t",l:"Time",u:"s",min:0.5,max:900},{k:"pos",l:"Released at",t:"text"}]},
+  up:{row:"Reading",cols:[{k:"r",l:"Staff",u:"m",min:0,max:6}]},
+  down:{row:"Reading",cols:[{k:"r",l:"Staff",u:"m",min:0,max:6}]},
+  cal:{row:"Standard",cols:[{k:"c",l:"NaCl",u:"mg/L",min:0,max:10000},{k:"ec",l:"EC",u:"µS/cm",min:0,max:50000}]},
+  dil:{row:"Reading",cols:[{k:"t",l:"Time",u:"s",min:0,max:20000},{k:"ec",l:"EC",u:"µS/cm",min:0,max:50000}],compact:true}
+};
+const LOG={
+  "lg-expert":{title:"Add a group member's estimate",table:"expert",fields:[{k:"name",l:"Who",t:"text"},{k:"q",l:"Their estimate",u:"m³/s",req:1}]},
+  "lg-xs":{title:"Log a depth",sel:{l:"Transect",opts:[["T1","T1 · 0 m (upstream)"],["T2","T2 · 10 m"],["T3","T3 · 20 m (downstream)"]]},fields:[{k:"x",l:"Distance from left bank",u:"m",req:1,auto:"x"},{k:"d",l:"Depth",u:"m",req:1}]},
+  "lg-float":{title:"Time a float",table:"float",sw:1,fields:[{k:"t",l:"Travel time",u:"s",req:1},{k:"pos",l:"Released at",t:"select",opts:["Centre","Left third","Right third"]},{k:"note",l:"Note (optional)",t:"text"}]},
+  "lg-slope":{title:"Log a staff reading",sel:{l:"Staff position",opts:[["up","Upstream (T1)"],["down","Downstream (T3)"]]},fields:[{k:"r",l:"Staff reading",u:"m",req:1},{k:"note",l:"Note (optional)",t:"text"}]},
+  "lg-cal":{title:"Log a calibration standard",table:"cal",fields:[{k:"c",l:"NaCl concentration",u:"mg/L",req:1},{k:"ec",l:"EC",u:"µS/cm",req:1}]},
+  "lg-dil":{title:"Log an EC reading",table:"dil",csv:1,fields:[{k:"t",l:"Time since salt went in",u:"s",req:1,auto:"t"},{k:"ec",l:"EC",u:"µS/cm",req:1}]}
+};
+
+/* ======================================================================
+   STATE
+   ====================================================================== */
+const KEY="derwent-flow-v2";
+const row=(o)=>({...o,note:o.note||"",inc:true,why:""});
+function exampleDS(){const d={origin:"example",expert:EX.expert.map(row),float:EX.float.map(row),up:EX.up.map(row),down:EX.down.map(row),cal:EX.cal.map(row),dil:genDil().map(row),p:{...EX.p,nType:null,n:null}};XS.forEach(k=>d[k]=EX.xs[k].map(([x,dd])=>row({x,d:dd})));return d}
+function blankDS(){const d={origin:"own",expert:[],float:[],up:[],down:[],cal:[],dil:[],p:{L:20,k:0.85,slopeL:20,M:1000,bgEnd:30,nType:null,n:null}};XS.forEach(k=>d[k]=[]);return d}
+const W0=()=>({tries:{},steps:{},revealed:{},mine:{}});
+function fresh(keepOwn){return {v:2,mode:null,step:"brief",ds:"example",data:{example:exampleDS(),own:keepOwn||null},work:{example:W0(),own:W0()},A:{exW:null,exD:null,exV:null,exLocked:false,exFirst:null,interp:{},refl:{},ratings:{},quiz:{},staff:false,ticks:{},copied:false,ref:"mean"},showOut:{},savedAt:null}}
+let S=fresh();
+/* Nothing is stored: state lives in memory for this visit only. */
+let dirty=false;
+function save(){dirty=true}
+window.addEventListener("beforeunload",e=>{if(dirty){e.preventDefault();e.returnValue=""}});
+const DS=()=>S.data[S.ds];
+const Wk=()=>S.work[S.ds];
+
+/* ======================================================================
+   HELPERS
+   ====================================================================== */
+const $=s=>document.querySelector(s);
+const isN=v=>typeof v==="number"&&isFinite(v);
+const parseNum=s=>{s=String(s??"").trim().replace(/^(-?\d+),(\d+)$/,"$1.$2");if(s==="")return null;return isNaN(+s)?s:+s};
+const num=s=>{const v=parseNum(s);return isN(v)?v:null};
+const f=(x,d=3)=>isN(x)?x.toFixed(d):"—";
+const mean=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
+const sd=a=>{if(a.length<2)return null;const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1))};
+const median=a=>{if(!a.length)return null;const b=[...a].sort((x,y)=>x-y),m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2};
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const filled=s=>!!(s&&String(s).trim().length>2);
+function niceTicks(lo,hi,n){const span=hi-lo||1;const st0=span/Math.max(1,n);const mag=10**Math.floor(Math.log10(st0));const st=[1,2,2.5,5,10].map(m=>m*mag).find(s=>s>=st0)||mag*10;const out=[];for(let v=Math.ceil(lo/st-1e-9)*st;v<=hi+1e-9;v+=st)out.push(+v.toFixed(10));return out}
+const tick=v=>String(+v.toFixed(4));
+const mlabel=k=>METHODS.find(m=>m.k===k).name;
+function setHTML(id,h){const el=document.getElementById(id);if(el)el.innerHTML=h}
+
+/* ======================================================================
+   CALCULATIONS
+   ====================================================================== */
+function xsCalc(p){p=[...p].sort((a,b)=>a.x-b.x);if(p.length<3)return null;let A=0,P=0;for(let i=0;i<p.length-1;i++){const dx=p[i+1].x-p[i].x;A+=0.5*(p[i].d+p[i+1].d)*dx;P+=Math.hypot(dx,p[i+1].d-p[i].d)}const W=p[p.length-1].x-p[0].x;if(!(A>0&&P>0&&W>0))return null;return {A,P,W,R:A/P,dbar:A/W,dmax:Math.max(...p.map(r=>r.d)),n:p.length}}
+function thin(p){p=[...p].sort((a,b)=>a.x-b.x);return p.filter((r,i)=>i%2===0||i===p.length-1)}
+function regress(pts){if(pts.length<2)return {b:null,a:null,r2:null};const mx=mean(pts.map(r=>r.c)),my=mean(pts.map(r=>r.ec));let sxy=0,sxx=0,syy=0;pts.forEach(r=>{sxy+=(r.c-mx)*(r.ec-my);sxx+=(r.c-mx)**2;syy+=(r.ec-my)**2});const b=sxx?sxy/sxx:null;return {b,a:b!=null?my-b*mx:null,r2:sxx&&syy?(sxy*sxy)/(sxx*syy):null}}
+function calcDS(D,o={}){
+  const use=r=>o.raw||r.inc, R={}, p=D.p;
+  const eq=D.expert.filter(r=>use(r)&&isN(r.q)).map(r=>r.q);
+  R.expert={Q:median(eq),lo:eq.length?Math.min(...eq):null,hi:eq.length?Math.max(...eq):null,n:eq.length,total:D.expert.length};
+  R.xs={};R.xsThin={};
+  XS.forEach(k=>{const pts=D[k].filter(r=>use(r)&&isN(r.x)&&isN(r.d));R.xs[k]=xsCalc(pts);R.xsThin[k]=xsCalc(thin(pts))});
+  const ok=XS.map(k=>R.xs[k]).filter(Boolean),okT=XS.map(k=>R.xsThin[k]).filter(Boolean);
+  R.nXS=ok.length;R.A=ok.length?mean(ok.map(x=>x.A)):null;R.P=ok.length?mean(ok.map(x=>x.P)):null;R.Rh=R.A&&R.P?R.A/R.P:null;R.Athin=okT.length===ok.length&&ok.length?mean(okT.map(x=>x.A)):null;
+  let ft=D.float.filter(r=>use(r)&&isN(r.t)&&r.t>0).map(r=>r.t);const nAll=ft.length;
+  if(o.floatN&&o.floatN<ft.length)ft=ft.slice(0,o.floatN);
+  const tb=mean(ft),ts=sd(ft),se=ts!=null?ts/Math.sqrt(ft.length):0;
+  const L=isN(p.L)&&p.L>0?p.L:null,k=isN(p.k)&&p.k>0?p.k:null;
+  const vs=tb&&L?L/tb:null,vm=vs&&k?vs*k:null;
+  R.float={n:ft.length,nAll,total:D.float.length,tb,ts,se,vs,vm,L,k,Q:R.A&&vm&&ft.length>=3?R.A*vm:null,lo:R.A&&tb&&L?R.A*(L/(tb+se))*0.8:null,hi:R.A&&tb&&L?R.A*(L/Math.max(tb-se,1e-6))*0.9:null};
+  const up=D.up.filter(r=>use(r)&&isN(r.r)).map(r=>r.r),dn=D.down.filter(r=>use(r)&&isN(r.r)).map(r=>r.r);
+  const sL=isN(p.slopeL)&&p.slopeL>0?p.slopeL:null;
+  const dh=up.length&&dn.length?mean(dn)-mean(up):null,Sl=dh!=null&&sL?dh/sL:null;
+  const man=(nn,SS=Sl,pw=2/3)=>(R.A&&R.Rh&&SS>0&&nn>0)?(1/nn)*R.A*Math.pow(R.Rh,pw)*Math.sqrt(SS):null;
+  const nt=p.nType!=null?NTYPES[p.nType]:null,n=isN(p.n)&&p.n>0?p.n:null;
+  R.slope={nu:up.length,nd:dn.length,up:mean(up),dn:mean(dn),dh,S:Sl,L:sL,n,nt,Q:man(n),lo:nt?man(nt.max):null,hi:nt?man(nt.min):null,_noL:man(n,dh),_noPow:man(n,Sl,1)};
+  const cp=D.cal.filter(r=>use(r)&&isN(r.c)&&isN(r.ec));const {b,a,r2}=regress(cp);const kc=b>0?1/b:null;
+  const ser=D.dil.filter(r=>use(r)&&isN(r.t)&&isN(r.ec)).sort((x,y)=>x.t-y.t);
+  const bgEnd=isN(p.bgEnd)?p.bgEnd:30;const pre=ser.filter(r=>r.t<bgEnd).map(r=>r.ec);const bg=pre.length?mean(pre):null,bgs=sd(pre)||0;
+  const integ=bv=>{if(ser.length<2||bv==null)return null;let s=0;for(let i=0;i<ser.length-1;i++)s+=0.5*((ser[i].ec-bv)+(ser[i+1].ec-bv))*(ser[i+1].t-ser[i].t);return s};
+  const I=integ(bg),M=isN(p.M)&&p.M>0?p.M*1000:null;
+  const qd=Iv=>Iv>0&&kc&&M?M/(kc*Iv)/1000:null;
+  const Q1=qd(integ(bg!=null?bg+bgs:null)),Q2=qd(integ(bg!=null?bg-bgs:null));const I0=integ(0);
+  R.dil={b,a,r2,ncal:cp.length,ncalTotal:D.cal.length,kc,bg,bgs,npre:pre.length,bgEnd,I,Ic:I!=null&&kc?I*kc:null,M,n:ser.length,total:D.dil.length,Q:qd(I),
+    lo:Q1!=null&&Q2!=null?Math.min(Q1,Q2):null,hi:Q1!=null&&Q2!=null?Math.max(Q1,Q2):null,ser,peak:ser.length?Math.max(...ser.map(r=>r.ec)):null,
+    last:ser.length?ser[ser.length-1].ec:null,_noKc:I>0&&M?M/I/1000:null,_abs:I0>0&&kc&&M?M/(kc*I0)/1000:null};
+  return R;
+}
+let R=null,Rr=null;
+
+/* ======================================================================
+   VALIDATION, HINTS, WORKED STEPS
+   ====================================================================== */
+function badCells(key){const T=TBL[key];const out=[];DS()[key].forEach((r,i)=>T.cols.forEach(c=>{if(c.t)return;const v=r[c.k];if(typeof v==="string"&&v!=="")out.push(`${T.row.toLowerCase()} ${i+1}: "${v}" isn't a number`);else if(isN(v)&&(v<c.min||v>c.max))out.push(`${T.row.toLowerCase()} ${i+1}: ${v} ${c.u} is outside the expected range (${c.min}–${c.max} ${c.u})`)}));return out}
+const TNAME={up:"the upstream readings",down:"the downstream readings",cal:"the calibration table",dil:"the EC readings",float:"the float runs",expert:"the group estimates",T1:"T1",T2:"T2",T3:"T3"};
+function issues(m){
+  const E=[],Wn=[],D=DS(),p=D.p;if(!R)return {E,Wn};
+  const cells=keys=>keys.forEach(k=>{const b=badCells(k);if(b.length)E.push(`Check ${TNAME[k]} (${b.slice(0,2).join("; ")}${b.length>2?"; …":""}). Fix the highlighted box.`)});
+  const reasons=keys=>{const n=keys.reduce((s,k)=>s+D[k].filter(r=>!r.inc&&!r.why).length,0);if(n)Wn.push(`${n} excluded reading${n>1?"s need":" needs"} a reason. Choose one under the Excluded button.`)};
+  if(m==="survey"){cells(XS);reasons(XS);
+    XS.forEach(k=>{const pts=D[k].filter(r=>r.inc&&isN(r.x)&&isN(r.d)).sort((a,b)=>a.x-b.x);
+      if(pts.length<3)E.push(`${k} needs at least 3 depth readings to give an area. It has ${pts.length}.`);
+      else{if(pts[0].d!==0||pts[pts.length-1].d!==0)Wn.push(`${k} doesn't start and end at 0 m depth. Record the water's edge on each bank, or the area will be cut short.`);
+        const xs=pts.map(r=>r.x);if(new Set(xs).size<xs.length)Wn.push(`${k} has two readings at the same distance. Check the distances.`)}});
+  }
+  if(m==="float"){cells(["float"]);reasons(["float"]);
+    if(!isN(p.L)||p.L<=0)E.push("Enter the reach length L in metres.");
+    if(!isN(p.k)||p.k<=0)E.push("Enter the coefficient k.");
+    if(R.float.nAll<3)E.push(`Use at least 3 float runs. You have ${R.float.nAll}.`);
+    if(!R.A)E.push("The mean area from Step 3 is missing. Finish the channel survey first.");
+  }
+  if(m==="slope"){cells(["up","down"]);reasons(["up","down"]);
+    if(!R.slope.nu||!R.slope.nd)E.push("You need at least one upstream and one downstream staff reading.");
+    else if(R.slope.dh<=0)E.push("The downstream reading should be larger than the upstream one, because the water surface is lower downstream. Check which staff position is which.");
+    if(p.nType==null)E.push("Choose a channel description to set Manning's n.");
+    else if(!R.slope.n)E.push("Enter a value for n.");
+    if(!isN(p.slopeL)||p.slopeL<=0)E.push("Enter the distance between the staff positions.");
+    if(!R.A)E.push("The mean area from Step 3 is missing. Finish the channel survey first.");
+  }
+  if(m==="dil"){cells(["cal","dil"]);reasons(["cal","dil"]);const d=R.dil;
+    if(d.ncal<2)E.push("Add at least 2 calibration standards to fit a line.");
+    else if(!(d.b>0))E.push("The calibration line should slope upwards: more salt means higher EC. Check the calibration values.");
+    else if(d.r2<0.995)Wn.push(`The calibration points don't sit on a straight line (r² = ${f(d.r2,4)}). Look for a point that doesn't fit.`);
+    if(!isN(p.M)||p.M<=0)E.push("Enter the salt mass M in grams.");
+    if(d.npre<2)E.push(`There are fewer than 2 readings before t = ${f(d.bgEnd,0)} s, so there's no background. Increase the background window.`);
+    else if(d.I!=null&&d.I<=0)E.push("The area under the curve is zero or negative. Check that the background window ends before the salt arrives.");
+    if(d.last!=null&&d.bg!=null&&d.last-d.bg>Math.max(3*d.bgs,0.8))Wn.push("EC hasn't returned to background by the last reading. The area is cut short, so Q will come out too high.");
+  }
+  return {E,Wn};
+}
+function renderMsgs(id,m){const el=document.getElementById(id);if(!el)return;const {E,Wn}=issues(m);el.innerHTML=E.map(x=>`<p class="msg-e"><b>Fix:</b>${esc(x)}</p>`).join("")+Wn.map(x=>`<p class="msg-w"><b>Check:</b>${esc(x)}</p>`).join("")}
+function hintFor(m,v){
+  const Q=R[m].Q,c=[];
+  if(m==="float"){c.push([R.A*R.float.vs,"You've used the surface velocity. Multiply it by k to get the mean velocity."]);XS.forEach(k=>R.xs[k]&&c.push([R.xs[k].A*R.float.vm,`You've used the area of ${k} only. Use the mean area of all three transects.`]))}
+  if(m==="slope"){c.push([R.slope._noL,"You've used the fall Δh as the slope. Divide it by the distance first: S = Δh ÷ L."]);c.push([R.slope._noPow,"Raise R to the power 2/3 before multiplying."])}
+  if(m==="dil"){c.push([R.dil._noKc,"You've used the area in µS/cm·s directly. Multiply it by k_c first to turn it into mg·s/L."]);c.push([R.dil._abs,"Subtract the background EC from every reading before working out the area."])}
+  c.push([Rr[m].Q,"That matches using every reading, including the ones you excluded. Recalculate with only the readings marked Used."]);
+  c.push([Q*1000,"That's Q in litres per second. Divide by 1000 to get m³/s."]);
+  c.push([Q/1000,"That's 1000 times too small. Check your units: grams and milligrams, litres and m³."]);
+  const hit=c.find(([x])=>isN(x)&&x>0&&Math.abs(v-x)/x<=0.02&&Math.abs(Q-x)/Q>0.03);
+  return hit?hit[1]:null;
+}
+function worked(m){
+  const r=R[m];if(r.Q==null)return [];
+  if(m==="float")return [
+    [`t̄ = ${f(r.tb,2)} s   (from ${r.n} runs; s = ${f(r.ts,2)} s; SE = ${f(r.se,2)} s)`,"Average the travel times of the runs marked Used."],
+    [`v_s = L ÷ t̄ = ${f(r.L,1)} ÷ ${f(r.tb,2)} = ${f(r.vs,4)} m/s`,"Surface velocity is distance over time."],
+    [`v̄ = k × v_s = ${f(r.k,2)} × ${f(r.vs,4)} = ${f(r.vm,4)} m/s`,"Convert surface velocity to mean velocity."],
+    [`Ā = ${f(R.A,3)} m²`,"Mean area of the three transects from Step 3."],
+    [`Q = Ā × v̄ = ${f(R.A,3)} × ${f(r.vm,4)} = ${f(r.Q,3)} m³/s`,"Area × mean velocity gives discharge."],
+    [`range: k = 0.80 with t̄ + SE → ${f(r.lo,3)};  k = 0.90 with t̄ − SE → ${f(r.hi,3)} m³/s`,"How far Q could reasonably move."]];
+  if(m==="slope"){const r23=Math.pow(R.Rh,2/3),sq=Math.sqrt(r.S);return [
+    [`upstream ū = ${f(r.up,4)} m (${r.nu} readings);  downstream d̄ = ${f(r.dn,4)} m (${r.nd})`,"Average the staff readings marked Used at each position."],
+    [`Δh = d̄ − ū = ${f(r.dn,4)} − ${f(r.up,4)} = ${f(r.dh,4)} m`,"A bigger reading downstream means the water is lower there."],
+    [`S = Δh ÷ L = ${f(r.dh,4)} ÷ ${f(r.L,1)} = ${f(r.S,5)};   √S = ${f(sq,4)}`,"Slope is fall over distance."],
+    [`R = Ā ÷ P̄ = ${f(R.A,3)} ÷ ${f(R.P,3)} = ${f(R.Rh,4)} m;   R^(2/3) = ${f(r23,4)}`,"Hydraulic radius from Step 3's geometry."],
+    [`Q = (1/n) × Ā × R^(2/3) × √S = (1/${f(r.n,3)}) × ${f(R.A,3)} × ${f(r23,4)} × ${f(sq,4)} = ${f(r.Q,3)} m³/s`,"Manning's equation."],
+    [`range: n = ${r.nt.max} → ${f(r.lo,3)};  n = ${r.nt.min} → ${f(r.hi,3)} m³/s`,"The n range for the description you chose."]]}
+  if(m==="dil")return [
+    [`calibration slope = ${f(r.b,3)} µS/cm per mg/L  →  k_c = 1 ÷ ${f(r.b,3)} = ${f(r.kc,4)} mg/L per µS/cm`,"From the straight line through your calibration points."],
+    [`EC_b = ${f(r.bg,2)} µS/cm   (mean of ${r.npre} readings before ${f(r.bgEnd,0)} s; SD ${f(r.bgs,2)})`,"The stream's natural EC before the salt arrives."],
+    [`∫(EC − EC_b) dt = ${f(r.I,1)} µS/cm·s`,"Trapezium rule: add ½ × (ΔEC₁ + ΔEC₂) × 5 s for every pair of neighbouring readings."],
+    [`∫(C − C_b) dt = k_c × ${f(r.I,1)} = ${f(r.Ic,1)} mg·s/L`,"Convert the area from EC units to concentration."],
+    [`Q = M ÷ ∫ = ${f(r.M,0)} mg ÷ ${f(r.Ic,1)} mg·s/L = ${f(r.Q*1000,1)} L/s = ${f(r.Q,3)} m³/s`,"Salt mass over the area. Litres per second ÷ 1000 = m³/s."],
+    [`range: EC_b ± 1 SD → ${f(r.lo,3)} to ${f(r.hi,3)} m³/s`,"How sensitive Q is to the background you chose."]];
+  return [];
+}
+
+/* ======================================================================
+   TABLES
+   ====================================================================== */
+let HL={k:null,i:null};
+function unusual(key){
+  const rows=DS()[key],s=new Set();
+  if(XS.includes(key)){const p=rows.map((r,i)=>({...r,i})).filter(r=>isN(r.x)&&isN(r.d)).sort((a,b)=>a.x-b.x);for(let j=1;j<p.length-1;j++){if(Math.abs(p[j].d-(p[j-1].d+p[j+1].d)/2)>0.2)s.add(p[j].i)}return s}
+  if(key==="dil"){const p=rows.map((r,i)=>({...r,i})).filter(r=>isN(r.t)&&isN(r.ec)).sort((a,b)=>a.t-b.t);const dev=j=>Math.abs(p[j].ec-(p[j-1].ec+p[j+1].ec)/2);const all=[];for(let j=1;j<p.length-1;j++)all.push(dev(j));const m=median(all)||0.1;for(let j=1;j<p.length-1;j++)if(dev(j)>Math.max(8*m,3))s.add(p[j].i);return s}
+  if(key==="cal"){const p=rows.map((r,i)=>({...r,i})).filter(r=>isN(r.c)&&isN(r.ec));const sl=[];for(let a=0;a<p.length;a++)for(let b=a+1;b<p.length;b++)if(p[b].c!==p[a].c)sl.push((p[b].ec-p[a].ec)/(p[b].c-p[a].c));const b=median(sl);if(b==null)return s;const a=median(p.map(r=>r.ec-b*r.c));p.forEach(r=>{if(Math.abs(r.ec-(a+b*r.c))>10)s.add(r.i)});return s}
+  const fk=key==="expert"?"q":key==="float"?"t":"r";const p=rows.map((r,i)=>({v:r[fk],i})).filter(o=>isN(o.v));if(p.length<4)return s;const md=median(p.map(o=>o.v));const mad=median(p.map(o=>Math.abs(o.v-md)))||1e-9;p.forEach(o=>{if(Math.abs(o.v-md)/(1.4826*mad)>3.5)s.add(o.i)});return s;
+}
+function renderTools(key){const el=document.getElementById("tt-"+key);if(!el)return;const own=S.ds==="own";
+  el.innerHTML=`<span class="dsbadge ${own?"own":""}">${own?"Your group's data":"Example data · values locked"}</span>`+
+  (own?`<button type="button" class="btn small" data-add="${key}">Add row</button><button type="button" class="btn small" data-clear="${key}">Clear table</button>`:`<button type="button" class="btn small" data-resetx="${key}">Reset exclusions</button>`)}
+function renderTable(key){
+  const el=document.getElementById("t-"+key);if(!el)return;
+  const T=TBL[key],rows=DS()[key],own=S.ds==="own",odd=S.showOut[key]?unusual(key):new Set();
+  let h=`<table class="data ${T.compact?"compact":"stack"}"><thead><tr><th class="c-num">${T.row}</th><th>Status</th>${T.cols.map(c=>`<th>${c.l}${c.u?` (${c.u})`:""}</th>`).join("")}${T.noNote?"":'<th class="c-note">Note</th>'}${own?'<th class="c-del"><span class="sr">Delete</span></th>':""}</tr></thead><tbody>`;
+  if(!rows.length)h+=`<tr class="empty"><td colspan="8">${own?"No readings yet. Log them above, or use Add row.":"No readings."}</td></tr>`;
+  rows.forEach((r,i)=>{
+    const nm=`${T.row} ${i+1}`;
+    h+=`<tr data-k="${key}" data-i="${i}" id="row-${key}-${i}" class="${r.inc?"":"out"}${HL.k===key&&HL.i===i?" hl":""}">`;
+    h+=`<td class="c-num" data-label="${T.row}">${i+1}</td>`;
+    h+=`<td class="c-status" data-label="In calculation"><button type="button" class="incbtn" data-inc="${key}" data-i="${i}" aria-pressed="${r.inc}" aria-label="${nm}: ${r.inc?"used in the calculation. Press to exclude it":"excluded. Press to use it again"}">${r.inc?"Used":"Excluded"}</button>`;
+    if(!r.inc)h+=`<select class="why ${r.why?"":"need"}" id="why-${key}-${i}" data-why="${key}" data-i="${i}" aria-label="Reason for excluding ${nm}"><option value="">Why excluded?</option>${REASONS.map(x=>`<option${r.why===x?" selected":""}>${x}</option>`).join("")}</select>`;
+    if(odd.has(i))h+=`<span class="flagq">Unusual value</span>`;
+    h+=`</td>`;
+    T.cols.forEach(c=>{const v=r[c.k];const lab=`${nm}, ${c.l}${c.u?" in "+c.u:""}`;const dl=`${c.l}${c.u?" ("+c.u+")":""}`;
+      if(own){const bad=!c.t&&((typeof v==="string"&&v!=="")||(isN(v)&&(v<c.min||v>c.max)));
+        h+=`<td data-label="${dl}"><span class="inp${bad?" bad":""}"><input type="text" ${c.t?"":'inputmode="decimal"'} id="c-${key}-${c.k}-${i}" data-cell="${key}" data-i="${i}" data-f="${c.k}" value="${esc(v??"")}" aria-label="${lab}" ${bad?'aria-invalid="true"':""} autocomplete="off">${c.u?`<span class="u" aria-hidden="true">${c.u}</span>`:""}</span></td>`;}
+      else h+=`<td data-label="${dl}"><span class="val">${v==null||v===""?"—":esc(v)}</span>${c.u&&v!=null&&v!==""?`<span class="u">${c.u}</span>`:""}</td>`;});
+    if(!T.noNote)h+=own?`<td class="c-note" data-label="Note"><span class="inp"><input type="text" id="c-${key}-note-${i}" data-cell="${key}" data-i="${i}" data-f="note" value="${esc(r.note||"")}" aria-label="${nm}, note" autocomplete="off"></span></td>`:`<td class="c-note${r.note?"":" none"}" data-label="Note">${r.note?esc(r.note):'<span aria-hidden="true">—</span>'}</td>`;
+    if(own)h+=`<td class="c-del"><button type="button" class="btn icon" data-del="${key}" data-i="${i}" aria-label="Delete ${nm}">Delete</button></td>`;
+    h+=`</tr>`;
+  });
+  el.innerHTML=h+`</tbody></table>`;
+  renderTools(key);
+}
+function renderAllTables(){Object.keys(TBL).forEach(renderTable)}
+function xsTablesHTML(){$("#xsTables").innerHTML=XS.map(k=>`<div class="panel" style="gap:8px"><h3>${k} · ${{T1:"0 m, upstream",T2:"10 m",T3:"20 m, downstream"}[k]}</h3><div class="tools" id="tt-${k}"></div><div class="tbl-wrap stackwrap" id="t-${k}"></div><p class="chip" id="chip-${k}" aria-live="polite"></p></div>`).join("")}
+
+/* ---------- undo and toast ---------- */
+let undoSnap=null,toastTimer=null;
+function snap(){return {ds:S.ds,json:JSON.stringify(S.data[S.ds])}}
+function toast(msg,withUndo){$("#toastMsg").textContent=msg;$("#toastUndo").hidden=!withUndo;$("#toast").hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{$("#toast").hidden=true},withUndo?10000:5000)}
+$("#toastUndo").addEventListener("click",()=>{if(!undoSnap)return;S.data[undoSnap.ds]=JSON.parse(undoSnap.json);undoSnap=null;$("#toast").hidden=true;save();renderAllTables();renderParams();Object.keys(LOG).forEach(id=>{if(document.getElementById(id+"-err"))setAuto(id)});update();toast("Undone.")});
+$("#toastX").addEventListener("click",()=>{$("#toast").hidden=true});
+
+/* ======================================================================
+   LOGGERS (field entry)
+   ====================================================================== */
+const sw={run:false,t0:0,el:0,timer:null};
+function renderLogger(id){const el=document.getElementById(id);if(!el)return;
+  if(id!=="lg-dil"||S.ds!=="own"){el.innerHTML="";return}
+  el.innerHTML=`<details class="more"><summary>Import the EC logger file (CSV) instead of typing</summary><div class="body"><p class="hint">Two columns (time in s, EC in µS/cm), or a single column of EC readings taken at a fixed interval. Imported readings replace the current table; you can undo.</p><div class="field"><label for="csvInt">Interval, if there's only one column</label><span class="inp" style="width:140px"><input id="csvInt" inputmode="decimal" value="5"><span class="u">s</span></span></div><input type="file" id="csvFile" accept=".csv,.txt,text/csv,text/plain" aria-label="Choose a CSV file"><p class="hint" id="csvMsg" role="status"></p></div></details>`}
+function renderLoggerOld(id){
+  const el=document.getElementById(id);if(!el)return;const cfg=LOG[id];
+  if(S.ds!=="own"){el.innerHTML=S.mode==="field"?`<div class="logprompt"><span>You're looking at the example data. Switch to your group's data to log your own readings.</span><button type="button" class="btn primary" data-ds="own">Use our group's data</button></div>`:"";return}
+  let h=`<form class="logger" data-log="${id}" novalidate><h3>${cfg.title}</h3>`;
+  if(cfg.sw)h+=`<div class="sw"><output class="swd" id="sw-disp">${(sw.el/1000).toFixed(1)} s</output><button type="button" class="btn big primary" id="sw-go">${sw.run?"Stop":"Start"}</button><button type="button" class="btn" id="sw-reset">Reset</button></div><p class="hint">Start as the float crosses T1 and stop at T3. The time drops into the box below.</p>`;
+  h+=`<div class="lgrid">`;
+  if(cfg.sel)h+=`<div class="field"><label for="${id}-sel">${cfg.sel.l}</label><select class="sel" id="${id}-sel" data-lsel="${id}">${cfg.sel.opts.map(([v,l])=>`<option value="${v}">${l}</option>`).join("")}</select></div>`;
+  cfg.fields.forEach(fd=>{const fid=`${id}-${fd.k}`;
+    if(fd.t==="select")h+=`<div class="field"><label for="${fid}">${fd.l}</label><select class="sel" id="${fid}">${fd.opts.map(o=>`<option>${o}</option>`).join("")}</select></div>`;
+    else h+=`<div class="field"><label for="${fid}">${fd.l}${fd.req?' <span class="req" aria-hidden="true">*</span>':""}</label><span class="inp"><input id="${fid}" ${fd.t?"":'inputmode="decimal"'} autocomplete="off" ${fd.req?'aria-required="true"':""}>${fd.u?`<span class="u">${fd.u}</span>`:""}</span></div>`});
+  h+=`</div><p class="lerr" id="${id}-err" role="alert"></p><div class="tools"><button type="submit" class="btn big primary">Save reading</button><span class="hint" id="${id}-last"></span></div>`;
+  if(cfg.csv)h+=`<details class="more"><summary>Import a logger file (CSV) instead</summary><div class="body"><p class="hint">Two columns (time in s, EC in µS/cm), or a single column of EC readings taken at a fixed interval. Imported readings replace the current table; you can undo.</p><div class="field"><label for="csvInt">Interval, if there's only one column</label><span class="inp" style="width:140px"><input id="csvInt" inputmode="decimal" value="5"><span class="u">s</span></span></div><input type="file" id="csvFile" accept=".csv,.txt,text/csv,text/plain" aria-label="Choose a CSV file"><p class="hint" id="csvMsg" role="status"></p></div></details>`;
+  el.innerHTML=h+`</form>`;
+  setAuto(id);
+}
+function loggerTable(id){const cfg=LOG[id];return cfg.table||document.getElementById(id+"-sel").value}
+function setAuto(id){return;const cfg=LOG[id];if(S.ds!=="own")return;if(!cfg.table&&!document.getElementById(id+"-sel"))return;const key=loggerTable(id),rows=DS()[key];
+  cfg.fields.forEach(fd=>{if(!fd.auto)return;const inp=document.getElementById(`${id}-${fd.k}`);if(!inp)return;const vals=rows.map(r=>r[fd.k]).filter(isN);
+    inp.value=vals.length?+(Math.max(...vals)+(fd.auto==="x"?0.5:5)).toFixed(2):0});
+  const last=document.getElementById(id+"-last");if(last)last.textContent=`${rows.length} saved in ${key==="up"?"upstream readings":key==="down"?"downstream readings":key==="float"?"float runs":key==="expert"?"group estimates":key==="cal"?"calibration":key==="dil"?"EC readings":key}`}
+document.addEventListener("submit",e=>{
+  const form=e.target.closest("form[data-log]");if(!form)return;e.preventDefault();
+  const id=form.dataset.log,cfg=LOG[id],key=loggerTable(id),rowObj={},errs=[];
+  cfg.fields.forEach(fd=>{const inp=document.getElementById(`${id}-${fd.k}`);const raw=inp.value;
+    if(fd.t){rowObj[fd.k]=raw;return}
+    const v=parseNum(raw);const c=TBL[key].cols.find(c=>c.k===fd.k);
+    if(v==null){if(fd.req)errs.push(`Enter the ${fd.l.toLowerCase()}.`);return}
+    if(!isN(v)){errs.push(`${fd.l} must be a number. Use a decimal point, for example 0.45.`);return}
+    if(c&&(v<c.min||v>c.max))errs.push(`${fd.l} of ${v} ${fd.u} looks wrong. Expected ${c.min}–${c.max} ${fd.u}.`);
+    rowObj[fd.k]=v});
+  const err=document.getElementById(id+"-err");
+  if(errs.length){err.textContent=errs.join(" ");return}
+  err.textContent="";undoSnap=snap();DS()[key].push(row(rowObj));
+  if(key==="float"){sw.el=0;swTick()}
+  cfg.fields.forEach(fd=>{const x=document.getElementById(`${id}-${fd.k}`);if(!x)return;if((!fd.t&&!fd.auto)||fd.k==="note"||fd.k==="name")x.value=""});
+  setAuto(id);save();renderTable(key);update();
+  toast(`Saved ${TBL[key].row.toLowerCase()} ${DS()[key].length}.`,true);
+  const first=cfg.fields.find(fd=>!fd.t&&!fd.auto);if(first)document.getElementById(`${id}-${first.k}`).focus();
+});
+document.addEventListener("change",e=>{if(e.target.dataset&&e.target.dataset.lsel)setAuto(e.target.dataset.lsel)});
+function swTick(){const d=document.getElementById("sw-disp");const v=sw.run?Date.now()-sw.t0:sw.el;if(d)d.textContent=(v/1000).toFixed(1)+" s"}
+document.addEventListener("click",e=>{
+  if(e.target.id==="sw-go"){if(!sw.run){sw.run=true;sw.t0=Date.now();sw.timer=setInterval(swTick,100);e.target.textContent="Stop"}else{sw.run=false;sw.el=Date.now()-sw.t0;clearInterval(sw.timer);swTick();e.target.textContent="Start";const t=document.getElementById("lg-float-t");if(t){t.value=(sw.el/1000).toFixed(1);t.focus()}}}
+  if(e.target.id==="sw-reset"){sw.run=false;clearInterval(sw.timer);sw.el=0;swTick();const g=document.getElementById("sw-go");if(g)g.textContent="Start"}
+});
+document.addEventListener("change",e=>{
+  if(e.target.id!=="csvFile")return;const file=e.target.files[0];if(!file)return;const rd=new FileReader();
+  rd.onload=()=>{const lines=String(rd.result).split(/\r?\n/);const intv=num($("#csvInt").value)||5;const out=[];
+    lines.forEach(l=>{const nums=l.split(/[,;\t]+|\s+/).map(s=>s.trim()).filter(Boolean).map(Number).filter(v=>isFinite(v));if(!nums.length)return;if(nums.length>=2)out.push({t:nums[0],ec:nums[1]});else out.push({t:out.length*intv,ec:nums[0]})});
+    if(!out.length){$("#csvMsg").textContent="No numbers found in that file. Check it has a column of EC values.";return}
+    undoSnap=snap();DS().dil=out.map(row);save();renderTable("dil");update();$("#csvMsg").textContent=`Imported ${out.length} readings.`;toast(`Imported ${out.length} EC readings.`,true)};
+  rd.readAsText(file);
+});
+
+/* ======================================================================
+   CHARTS
+   ====================================================================== */
+function frame(id,H){const svg=document.getElementById(id);if(!svg)return null;if(svg.closest("[hidden]"))return null;
+  const W=Math.max(260,Math.round(svg.parentElement.getBoundingClientRect().width));if(!W)return null;const h=typeof H==="function"?H(W):H;svg.setAttribute("viewBox",`0 0 ${W} ${h}`);svg.setAttribute("height",h);return {svg,W,H:h}}
+function axes(W,H,m,xd,yd,xl,yl,inv,noX){
+  const sx=(W-m.l-m.r)/((xd[1]-xd[0])||1),sy=(H-m.t-m.b)/((yd[1]-yd[0])||1);
+  const X=v=>m.l+(v-xd[0])*sx;const Y=inv?v=>m.t+(v-yd[0])*sy:v=>H-m.b-(v-yd[0])*sy;
+  let g="";if(!noX)niceTicks(xd[0],xd[1],Math.max(3,Math.floor((W-m.l-m.r)/80))).forEach(v=>{g+=`<line class="grid" x1="${X(v)}" x2="${X(v)}" y1="${m.t}" y2="${H-m.b}"/><text x="${X(v)}" y="${H-m.b+16}" text-anchor="middle">${tick(v)}</text>`});
+  if(yl!==null)niceTicks(yd[0],yd[1],4).forEach(v=>{g+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${tick(v)}</text>`});
+  g+=`<rect class="axis" x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}"/><text x="${(m.l+W-m.r)/2}" y="${H-4}" text-anchor="middle">${xl}</text>`;
+  if(yl)g+=`<text x="12" y="${(m.t+H-m.b)/2}" text-anchor="middle" transform="rotate(-90 12 ${(m.t+H-m.b)/2})">${yl}</text>`;
+  return {g,X,Y};
+}
+const ring=(x,y)=>`<circle class="hlr" cx="${x}" cy="${y}" r="9"/>`;
+function drawExpert(){const F=frame("cExpert",140);if(!F)return;const {W,H}=F,m={l:16,r:16,t:22,b:40};const rows=DS().expert.map((r,i)=>({...r,i})).filter(r=>isN(r.q));
+  const xmax=Math.max(1,...rows.map(r=>r.q),S.A.exFirst||0)*1.08;const {g,X}=axes(W,H,m,[0,xmax],[0,1],"estimated discharge (m³/s)",null,false);let s=g;
+  if(isN(S.A.exFirst))s+=`<line x1="${X(S.A.exFirst)}" x2="${X(S.A.exFirst)}" y1="${m.t}" y2="${H-m.b}" stroke="var(--m-expert)" stroke-width="2" stroke-dasharray="5 3"/><text x="${Math.min(X(S.A.exFirst)+4,W-90)}" y="${m.t-6}" class="ink">you: ${f(S.A.exFirst,2)}</text>`;
+  if(isN(R.expert.Q))s+=`<line x1="${X(R.expert.Q)}" x2="${X(R.expert.Q)}" y1="${m.t}" y2="${H-m.b}" stroke="var(--ink)" stroke-width="1.5"/><text x="${Math.min(X(R.expert.Q)+4,W-60)}" y="${H-m.b-6}" class="ink">median</text>`;
+  rows.forEach((r,j)=>{const y=m.t+14+(j%4)*14;const lab=(r.name||"").replace(/^Student\s+/,"").slice(0,4)||String(r.i+1);
+    s+=r.inc?`<circle cx="${X(r.q)}" cy="${y}" r="5" fill="var(--m-expert)"/>`:`<circle class="bad" cx="${X(r.q)}" cy="${y}" r="5"/><text class="badl" x="${X(r.q)+8}" y="${y+4}">${esc(lab)}</text>`;
+    if(HL.k==="expert"&&HL.i===r.i)s+=ring(X(r.q),y)});
+  F.svg.innerHTML=s;const ex=rows.filter(r=>!r.inc);$("#cap-expert").textContent=`Each dot is one person's estimate. ${R.expert.n} used, median ${f(R.expert.Q,2)} m³/s. Dashed line: your locked-in estimate.${ex.length?` Excluded (hollow): ${ex.map(r=>r.name||"#"+(r.i+1)).join(", ")}.`:""}`}
+function drawXS(){const F=frame("cXS",270);if(!F)return;const {W,H}=F,m={l:52,r:16,t:40,b:40};const D=DS();
+  const all=XS.flatMap(k=>D[k]).filter(r=>isN(r.x)&&isN(r.d));const xmax=Math.max(6.5,...all.map(r=>r.x)),dmax=Math.max(0.6,...all.map(r=>r.d))*1.1;
+  const {g,X,Y}=axes(W,H,m,[0,xmax],[0,dmax],"distance from left bank (m)","depth (m)",true);
+  const st={T1:["--m-float",""],T2:["--m-dil","8 4"],T3:["--m-slope","2 3"]};
+  let s=g+`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--river)" stroke-width="2"/>`;
+  XS.forEach((k,j)=>{const lx=m.l+j*Math.min(110,(W-m.l-m.r)/3);s+=`<line x1="${lx}" x2="${lx+28}" y1="14" y2="14" stroke="var(${st[k][0]})" stroke-width="3" ${st[k][1]?`stroke-dasharray="${st[k][1]}"`:""}/><text x="${lx+34}" y="18" class="ink">${k}</text>`;
+    const pts=D[k].map((r,i)=>({...r,i})).filter(r=>isN(r.x)&&isN(r.d));const p=pts.filter(r=>r.inc).sort((a,b)=>a.x-b.x);
+    if(p.length>1)s+=`<polyline fill="none" stroke="var(${st[k][0]})" stroke-width="2.4" ${st[k][1]?`stroke-dasharray="${st[k][1]}"`:""} points="${p.map(r=>X(r.x)+","+Y(r.d)).join(" ")}"/>`;
+    p.forEach(r=>s+=`<circle cx="${X(r.x)}" cy="${Y(r.d)}" r="3" fill="var(${st[k][0]})"/>`);
+    pts.filter(r=>!r.inc).forEach(r=>s+=`<circle class="bad" cx="${X(r.x)}" cy="${Y(r.d)}" r="5"/><text class="badl" x="${Math.min(X(r.x)+8,W-80)}" y="${Y(r.d)+4}">${k} pt ${r.i+1}</text>`);
+    if(HL.k===k){const r=D[k][HL.i];if(r&&isN(r.x)&&isN(r.d))s+=ring(X(r.x),Y(r.d))}});
+  F.svg.innerHTML=s;const ex=XS.flatMap(k=>D[k].map((r,i)=>!r.inc?`${k} point ${i+1}`:null).filter(Boolean));
+  $("#cap-xs").textContent=`Depth below the water surface across each transect. T1 solid, T2 dashed, T3 dotted. ${ex.length?`Excluded (hollow): ${ex.join(", ")}.`:"No readings excluded."}`}
+function drawFloat(){const rows=DS().float.map((r,i)=>({...r,i})).filter(r=>isN(r.t)&&r.t>0);const F=frame("cFloat",Math.max(160,66+rows.length*20));if(!F)return;const {W,H}=F,m={l:56,r:16,t:24,b:40};
+  const xmax=Math.max(60,...rows.map(r=>r.t))*1.05,n=Math.max(rows.length,1);const {g,X}=axes(W,H,m,[0,xmax],[0,1],"travel time T1 → T3 (s)",null,false);
+  const Yr=j=>m.t+((j+0.5)/n)*(H-m.t-m.b);let s=g;
+  rows.forEach((r,j)=>{s+=`<text x="${m.l-6}" y="${Yr(j)+4}" text-anchor="end">run ${r.i+1}</text>`;s+=r.inc?`<circle cx="${X(r.t)}" cy="${Yr(j)}" r="5" fill="var(--m-float)"/>`:`<circle class="bad" cx="${X(r.t)}" cy="${Yr(j)}" r="5"/>${X(r.t)>W-90?`<text class="badl" x="${X(r.t)-9}" y="${Yr(j)+4}" text-anchor="end">excluded</text>`:`<text class="badl" x="${X(r.t)+9}" y="${Yr(j)+4}">excluded</text>`}`;if(HL.k==="float"&&HL.i===r.i)s+=ring(X(r.t),Yr(j))});
+  if(R.float.tb){const x=X(R.float.tb);s+=`<line x1="${x}" x2="${x}" y1="${m.t}" y2="${H-m.b}" stroke="var(--ink)" stroke-width="1.5"/><text x="${Math.min(x+5,W-100)}" y="${m.t-8}" class="ink">mean ${f(R.float.tb,1)} s</text>`}
+  F.svg.innerHTML=s;$("#cap-float").textContent=rows.length?`One row per run. Filled dots are used, hollow dots excluded. Mean of the used runs: ${f(R.float.tb,1)} s.`:"No runs yet."}
+function drawSlope(){const F=frame("cSlope",250);if(!F)return;const {W,H}=F,m={l:62,r:16,t:16,b:40};const D=DS();
+  const all=[...D.up,...D.down].map(r=>r.r).filter(isN);if(!all.length){F.svg.innerHTML="";$("#cap-slope").textContent="No staff readings yet.";return}
+  const lo=Math.min(...all)-0.01,hi=Math.max(...all)+0.01;const {g,Y}=axes(W,H,m,[0,1],[lo,hi],"","staff reading (m)",true,true);let s=g;
+  const cx={up:m.l+(W-m.l-m.r)*0.25,down:m.l+(W-m.l-m.r)*0.72};
+  [["up","Upstream T1"],["down","Downstream T3"]].forEach(([k,l])=>{s+=`<text x="${cx[k]}" y="${H-16}" text-anchor="middle" class="ink">${l}</text>`;
+    D[k].forEach((r,i)=>{if(!isN(r.r))return;const x=cx[k]+(i-(D[k].length-1)/2)*14;s+=r.inc?`<circle cx="${x}" cy="${Y(r.r)}" r="5" fill="var(--m-slope)"/>`:`<circle class="bad" cx="${x}" cy="${Y(r.r)}" r="5"/><text class="badl" x="${x+8}" y="${Y(r.r)+4}">#${i+1} excluded</text>`;if(HL.k===k&&HL.i===i)s+=ring(x,Y(r.r))});
+    const mv=k==="up"?R.slope.up:R.slope.dn;if(isN(mv))s+=`<line x1="${cx[k]-40}" x2="${cx[k]+40}" y1="${Y(mv)}" y2="${Y(mv)}" stroke="var(--ink)" stroke-width="1.5"/>`});
+  if(isN(R.slope.dh)&&R.slope.dh>0){const xm=(cx.up+cx.down)/2;s+=`<line x1="${xm}" x2="${xm}" y1="${Y(R.slope.up)}" y2="${Y(R.slope.dn)}" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#ah)"/><text x="${xm+6}" y="${(Y(R.slope.up)+Y(R.slope.dn))/2+4}" class="ink">fall Δh = ${f(R.slope.dh,3)} m</text>`}
+  F.svg.innerHTML=s;$("#cap-slope").textContent=`Staff readings, plotted so that lower water sits lower on the chart. Lines show the mean of the used readings at each position; hollow dots are excluded.`}
+function drawCal(){const F=frame("cCal",240);if(!F)return;const {W,H}=F,m={l:58,r:16,t:14,b:40};const p=DS().cal.map((r,i)=>({...r,i})).filter(r=>isN(r.c)&&isN(r.ec));
+  if(!p.length){F.svg.innerHTML="";$("#cap-cal").textContent="No calibration standards yet.";return}
+  const xmax=Math.max(50,...p.map(r=>r.c))*1.05,ymax=Math.max(100,...p.map(r=>r.ec))*1.08;const {g,X,Y}=axes(W,H,m,[0,xmax],[0,ymax],"NaCl concentration (mg/L)","EC (µS/cm)");let s=g;
+  const d=R.dil;if(d.b!=null)s+=`<line x1="${X(0)}" y1="${Y(d.a)}" x2="${X(xmax)}" y2="${Y(d.a+d.b*xmax)}" stroke="var(--m-dil)" stroke-width="1.6" stroke-dasharray="6 3"/>`;
+  p.forEach(r=>{s+=r.inc?`<circle cx="${X(r.c)}" cy="${Y(r.ec)}" r="5" fill="var(--m-dil)"/>`:`<circle class="bad" cx="${X(r.c)}" cy="${Y(r.ec)}" r="5"/><text class="badl" x="${X(r.c)+8}" y="${Y(r.ec)+4}">${r.c} mg/L</text>`;if(HL.k==="cal"&&HL.i===r.i)s+=ring(X(r.c),Y(r.ec))});
+  F.svg.innerHTML=s;$("#cap-cal").textContent=d.b?`Dashed line: best fit through the used points, EC = ${f(d.a,1)} + ${f(d.b,3)} × C (r² = ${f(d.r2,4)}). Hollow dots are excluded.`:"Add at least two standards to fit a line."}
+function drawDil(){const F=frame("cDil",260);if(!F)return;const {W,H}=F,m={l:58,r:16,t:22,b:40};const rows=DS().dil.map((r,i)=>({...r,i})).filter(r=>isN(r.t)&&isN(r.ec));
+  if(rows.length<2){F.svg.innerHTML="";$("#cap-dil").textContent="Not enough EC readings to draw the curve yet.";return}
+  const xmax=Math.max(...rows.map(r=>r.t)),ymin=Math.min(...rows.map(r=>r.ec)),ymax=Math.max(...rows.map(r=>r.ec)),pad=(ymax-ymin)*0.1||1;
+  const {g,X,Y}=axes(W,H,m,[0,xmax],[ymin-pad,ymax+pad],"time since salt went in (s)","EC (µS/cm)");const d=R.dil,ser=d.ser;let s=g;
+  if(isN(d.bgEnd)&&d.bgEnd>0)s+=`<rect x="${m.l}" y="${m.t}" width="${Math.max(0,X(Math.min(d.bgEnd,xmax))-m.l)}" height="${H-m.t-m.b}" fill="var(--ink)" fill-opacity=".08"/><text x="${m.l+4}" y="${m.t-7}" class="ink">background window</text>`;
+  if(d.bg!=null&&ser.length>1){s+=`<polygon fill="var(--m-dil)" fill-opacity=".18" points="${X(ser[0].t)},${Y(d.bg)} ${ser.map(r=>X(r.t)+","+Y(r.ec)).join(" ")} ${X(ser[ser.length-1].t)},${Y(d.bg)}"/>`;
+    s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(d.bg)}" y2="${Y(d.bg)}" stroke="var(--ink)" stroke-dasharray="4 3"/><text x="${W-m.r-4}" y="${Y(d.bg)-6}" text-anchor="end" class="ink">EC_b = ${f(d.bg,1)}</text>`;
+    const pk=ser.reduce((a,b)=>b.ec>a.ec?b:a);s+=`<text x="${Math.max(m.l+4,Math.min(X(pk.t)+14,W-m.r-190))}" y="${Y(d.bg+(pk.ec-d.bg)*0.55)}" class="ink">shaded area = ∫(EC − EC_b) dt</text>`}
+  if(ser.length>1)s+=`<polyline fill="none" stroke="var(--m-dil)" stroke-width="2" points="${ser.map(r=>X(r.t)+","+Y(r.ec)).join(" ")}"/>`;
+  rows.filter(r=>!r.inc).forEach(r=>s+=`<circle class="bad" cx="${X(r.t)}" cy="${Y(r.ec)}" r="5"/><text class="badl" x="${Math.min(X(r.t)+8,W-80)}" y="${Y(r.ec)+4}">t = ${r.t} s</text>`);
+  if(HL.k==="dil"){const r=DS().dil[HL.i];if(r&&isN(r.t)&&isN(r.ec))s+=ring(X(r.t),Y(r.ec))}
+  F.svg.innerHTML=s;const ex=rows.filter(r=>!r.inc);$("#cap-dil").textContent=`The salt cloud passing the probe (the breakthrough curve). The grey band is the background window; the shaded area is what the calculation adds up.${ex.length?` Excluded (hollow): ${ex.map(r=>"t = "+r.t+" s").join(", ")}.`:""}`}
+const rev=m=>m==="expert"?isN(S.A.exFirst):!!Wk().revealed[m];
+function refQ(){const sel=S.A.ref;if(sel==="mean"){const v=["float","slope","dil"].filter(rev).map(m=>R[m].Q).filter(isN);return v.length?mean(v):null}return rev(sel)?R[sel].Q:null}
+function drawCmp(){const svg=$("#cCmp");if(!svg||svg.closest("[hidden]"))return;const nar=svg.parentElement.getBoundingClientRect().width<560;
+  const F=frame("cCmp",W=>(W<560?4*92:4*60)+58);if(!F)return;const {W,H}=F;const m=nar?{l:12,r:20,t:10,b:44}:{l:210,r:24,t:10,b:44};const rowH=(H-m.t-m.b)/4;
+  const vals=METHODS.flatMap(M=>rev(M.k)?[R[M.k].hi,R[M.k].Q,Rr[M.k].Q]:[]).filter(isN);const xmax=Math.max(1,...vals,S.A.exFirst||0)*1.08;
+  const {g,X}=axes(W,H,m,[0,xmax],[0,1],"discharge Q (m³/s)",null,false);let s=g;
+  METHODS.forEach((M,i)=>{const y0=m.t+rowH*i,y=nar?y0+rowH*0.74:y0+rowH*0.5;const r=R[M.k];
+    if(nar)s+=`<text x="${m.l}" y="${y0+17}" class="ink" style="font-family:var(--f-body);font-size:13.5px;font-weight:600">${M.name}</text><text x="${m.l}" y="${y0+32}" style="font-family:var(--f-body);font-size:12px">range: ${BASIS[M.k]}</text>`;
+    else s+=`<text x="${m.l-12}" y="${y-3}" text-anchor="end" class="ink" style="font-family:var(--f-body);font-size:14px;font-weight:600">${M.name}</text><text x="${m.l-12}" y="${y+13}" text-anchor="end" style="font-family:var(--f-body);font-size:12px">${BASIS[M.k]}</text>`;
+    if(!rev(M.k)||!isN(r.Q)){s+=`<text x="${nar?m.l:m.l+8}" y="${y+(nar?10:4)}" style="font-family:var(--f-body)">${rev(M.k)?"can't be calculated yet: see Step "+M.n:"not worked out yet: finish Step "+M.n}</text>`;return}
+    if(isN(r.lo)&&isN(r.hi))s+=M.k==="expert"?`<line x1="${X(r.lo)}" x2="${X(r.hi)}" y1="${y}" y2="${y}" stroke="var(${M.c})" stroke-width="2.5" stroke-dasharray="5 4"/>`:`<line x1="${X(r.lo)}" x2="${X(r.hi)}" y1="${y}" y2="${y}" stroke="var(${M.c})" stroke-width="9" stroke-opacity=".35" stroke-linecap="round"/>`;
+    const rq2=Rr[M.k].Q;if(isN(rq2)&&Math.abs(rq2-r.Q)/r.Q>0.005)s+=`<circle cx="${X(rq2)}" cy="${y}" r="6" fill="var(--surface)" stroke="var(${M.c})" stroke-width="2"/>`;
+    s+=`<circle cx="${X(r.Q)}" cy="${y}" r="7" fill="var(${M.c})"/><text x="${X(r.Q)}" y="${y-12}" text-anchor="middle" class="ink">${f(r.Q,2)}</text>`});
+  F.svg.innerHTML=s;
+  $("#cap-cmp").textContent=`Filled dots: your cleaned data. Hollow dots: the same method using every reading, before cleaning. Bars show each method's range.`}
+function drawVisible(){const st=S.step;if(st==="expert")drawExpert();if(st==="survey")drawXS();if(st==="float")drawFloat();if(st==="slope")drawSlope();if(st==="dil"){drawCal();drawDil()}if(st==="compare")drawCmp()}
+
+/* ======================================================================
+   RESULT PANELS (attempt first, then staged worked steps)
+   ====================================================================== */
+function resultSkeleton(m){const el=document.getElementById("res-"+m);const M=METHODS.find(x=>x.k===m);
+  el.innerHTML=`<div class="panel" style="--mc:var(${M.c})"><h3>Work out the discharge</h3>
+  <div class="msgs" id="msg-${m}" aria-live="polite"></div>
+  <p class="hint">Use the numbers above. Work it out by hand or on a calculator, then check your answer. The worked steps are there if you get stuck.</p>
+  <div class="check"><div class="field"><label for="mine-${m}">Your Q</label><span class="inp" style="width:170px"><input id="mine-${m}" data-mine="${m}" inputmode="decimal" autocomplete="off"><span class="u">m³/s</span></span></div><button type="button" class="btn primary" data-check="${m}">Check my answer</button></div>
+  <p class="fb" id="fb-${m}" role="status"></p>
+  <div style="display:grid;gap:8px"><ol class="work" id="steps-${m}" aria-label="Worked steps"></ol><div class="tools" id="stb-${m}"></div></div>
+  <div class="result" id="big-${m}" hidden></div></div>`}
+function updateResult(m){
+  const r=R[m],w=Wk(),steps=worked(m),shown=w.revealed[m]?steps.length:Math.min(w.steps[m]||0,steps.length);
+  renderMsgs("msg-"+m,m);
+  const inp=document.getElementById("mine-"+m);if(inp&&document.activeElement!==inp)inp.value=w.mine[m]??"";
+  document.getElementById("steps-"+m).innerHTML=steps.slice(0,shown).map((s,i)=>`<li><span class="sr">Step ${i+1}: </span>${s[0]}<span class="why">${s[1]}</span></li>`).join("");
+  const stb=document.getElementById("stb-"+m);
+  if(r.Q==null||shown>=steps.length)stb.innerHTML="";
+  else stb.innerHTML=`<button type="button" class="btn" data-stepnext="${m}">${shown?`Show next step (${shown+1} of ${steps.length})`:"I'm stuck: show the first step"}</button>${shown?`<button type="button" class="btn" data-stepall="${m}">Show all steps</button>`:""}`;
+  const big=document.getElementById("big-"+m);
+  if(w.revealed[m]&&r.Q!=null){big.hidden=false;const raw=Rr[m].Q;big.innerHTML=`<span>Discharge</span><span class="big">${f(r.Q,3)}<span class="unit">m³/s</span></span><span class="rng">range ${f(r.lo,2)} – ${f(r.hi,2)} m³/s</span>${isN(raw)&&Math.abs(raw-r.Q)>1e-6?`<span class="rng">before cleaning: ${f(raw,3)} m³/s</span>`:""}`}else big.hidden=true;
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;const w=Wk();
+  if(b.dataset.check){const m=b.dataset.check,inp=document.getElementById("mine-"+m),v=num(inp.value),fb=document.getElementById("fb-"+m),Q=R[m].Q;w.mine[m]=v;
+    if(Q==null){fb.className="fb no";fb.textContent="Q can't be calculated yet. Fix the problems listed above first."}
+    else if(v==null){fb.className="fb no";fb.textContent="Enter your answer in m³/s first, for example 0.75."}
+    else{const err=Math.abs(v-Q)/Q;
+      if(err<=0.03){fb.className="fb ok";fb.textContent=`Correct: within 3% of ${f(Q,3)} m³/s. The full working is below so you can compare.`;w.revealed[m]=true}
+      else{w.tries[m]=(w.tries[m]||0)+1;const h=hintFor(m,v);fb.className="fb no";fb.textContent=`Not quite: ${err>2?"that's a long way off":(err*100).toFixed(0)+"% away"}. ${h||"Check each stage of the calculation and the units."}${w.tries[m]>=2?" You can reveal the worked steps one at a time below.":""}`}}
+    save();update()}
+  if(b.dataset.stepnext){const m=b.dataset.stepnext;w.steps[m]=(w.steps[m]||0)+1;if(w.steps[m]>=worked(m).length)w.revealed[m]=true;save();update();const nb=document.querySelector(`[data-stepnext="${m}"]`);if(nb)nb.focus();else{const l=document.querySelector(`#steps-${m} li:last-child`);if(l){l.tabIndex=-1;l.focus()}}}
+  if(b.dataset.stepall){const m=b.dataset.stepall;w.steps[m]=worked(m).length;w.revealed[m]=true;save();update()}
+});
+
+/* ======================================================================
+   UPDATE
+   ====================================================================== */
+let lastChange=null;
+const chipQ=m=>{if(!rev(m)||!isN(R[m].Q))return"";const was=lastChange&&lastChange.m===m&&isN(lastChange.prev)&&Math.abs(lastChange.prev-R[m].Q)>1e-9?` <span class="was">(was ${f(lastChange.prev,3)})</span>`:"";return ` · Q <b>${f(R[m].Q,3)}</b> m³/s${was}`};
+function update(){
+  R=calcDS(DS());Rr=calcDS(DS(),{raw:true});
+  const A=S.A,prod=isN(A.exW)&&isN(A.exD)&&isN(A.exV)?A.exW*A.exD*A.exV:null;
+  setHTML("exProd",`Width × depth × velocity = <b>${f(prod,2)}</b> m³/s`);
+  $("#exLock").disabled=!isN(prod);$("#exLockHint").textContent=isN(prod)?"":"Enter all three values first.";
+  ["exW","exD","exV"].forEach(k=>{document.getElementById(k).readOnly=A.exLocked});
+  $("#exLockRow").hidden=A.exLocked;$("#exLocked").hidden=!A.exLocked;
+  if(A.exLocked&&!$("#exLocked").contains(document.activeElement))setHTML("exLocked",`<span>Locked in: <b class="mono">${f(A.exFirst,2)} m³/s</b>${isN(prod)&&Math.abs(prod-A.exFirst)>1e-9?` (inputs now give ${f(prod,2)})`:""}</span><button type="button" class="btn small" id="exUnlock">Change my inputs</button>`);
+  $("#exGate").hidden=isN(A.exFirst);$("#exGroup").hidden=!isN(A.exFirst);
+  setHTML("chip-expert",`${R.expert.n} of ${R.expert.total} estimates used · median <b>${f(R.expert.Q,2)}</b> m³/s · range ${f(R.expert.lo,2)} – ${f(R.expert.hi,2)}`);
+  XS.forEach(k=>{const x=R.xs[k];setHTML("chip-"+k,x?`${x.n} points used · A <b>${f(x.A,3)}</b> m² · P <b>${f(x.P,2)}</b> m`:`Not enough readings for an area yet.`)});
+  renderMsgs("msg-survey","survey");
+  setHTML("xsRes",`<thead><tr><th>Transect</th><th>Width (m)</th><th>Max depth (m)</th><th>Mean depth (m)</th><th>Area A (m²)</th><th>Wetted P (m)</th><th>R = A/P (m)</th></tr></thead><tbody>${XS.map(k=>{const x=R.xs[k];return`<tr><td data-label="Transect" class="full"><b>${k}</b></td><td data-label="Width (m)" class="mono">${f(x&&x.W,2)}</td><td data-label="Max depth (m)" class="mono">${f(x&&x.dmax,2)}</td><td data-label="Mean depth (m)" class="mono">${f(x&&x.dbar,3)}</td><td data-label="Area A (m²)" class="mono">${f(x&&x.A,3)}</td><td data-label="Wetted P (m)" class="mono">${f(x&&x.P,3)}</td><td data-label="R (m)" class="mono">${f(x&&x.R,3)}</td></tr>`}).join("")}<tr><td data-label="Transect" class="full"><b>Mean of ${R.nXS}</b></td><td data-label="Width (m)"></td><td data-label="Max depth (m)"></td><td data-label="Mean depth (m)"></td><td data-label="Mean area Ā (m²)" class="mono"><b>${f(R.A,3)}</b></td><td data-label="Mean P̄ (m)" class="mono"><b>${f(R.P,3)}</b></td><td data-label="R = Ā/P̄ (m)" class="mono"><b>${f(R.Rh,3)}</b></td></tr></tbody>`);
+  setHTML("xsWhatIf",isN(R.Athin)&&isN(R.A)?`<b>Sampling check.</b> With depths every 1.0 m instead of every 0.5 m, the mean area would be <b>${f(R.Athin,3)}</b> m² (${((R.Athin/R.A-1)*100).toFixed(1)}% different). Is the extra effort of 0.5 m spacing worth it here?`:"The sampling check appears once all three transects give an area.");
+  const Fl=R.float;setHTML("chip-float",`${Fl.nAll} of ${Fl.total} runs used · mean time <b>${f(Fl.tb,1)}</b> s · <button type="button" class="term" data-term="se">SE</button> <b>${f(Fl.se,2)}</b> s${chipQ("float")}`);
+  setHTML("dep-float",`Uses mean area <b>Ā = ${f(R.A,3)} m²</b> from Step 3, Channel survey · Edit`);
+  const fN=$("#fN");fN.max=Math.max(2,Fl.nAll);if(+fN.value>Fl.nAll||!fN.dataset.touched)fN.value=Math.max(2,Fl.nAll);$("#fNo").textContent=fN.value;
+  const Fn=calcDS(DS(),{floatN:+fN.value}).float;setHTML("fNout",Fl.nAll>=3?`With ${Fn.n} runs: mean <b>${f(Fn.tb,1)}</b> s, SE <b>${f(Fn.se,2)}</b> s. With all ${Fl.nAll} runs: SE <b>${f(Fl.se,2)}</b> s. The standard error shrinks roughly with 1/√n, so each extra run helps a little less than the one before.`:"Add at least 3 runs first.");
+  updateResult("float");
+  const Sl=R.slope;setHTML("chip-slope",`Upstream mean <b>${f(Sl.up,3)}</b> m (${Sl.nu}) · downstream mean <b>${f(Sl.dn,3)}</b> m (${Sl.nd}) · fall Δh <b>${f(Sl.dh,3)}</b> m${chipQ("slope")}`);
+  setHTML("dep-slope",`Uses <b>Ā = ${f(R.A,3)} m²</b> and <b>P̄ = ${f(R.P,3)} m</b> from Step 3, Channel survey · Edit`);
+  updateResult("slope");
+  const d=R.dil;setHTML("chip-cal",`${d.ncal} of ${d.ncalTotal} standards used · slope <b>${f(d.b,3)}</b> µS/cm per mg/L · r² <b>${f(d.r2,4)}</b> · <button type="button" class="term" data-term="kc">k_c</button> <b>${f(d.kc,4)}</b>`);
+  setHTML("chip-dil",`${d.n} of ${d.total} readings used · EC_b <b>${f(d.bg,2)}</b> µS/cm · area <b>${f(d.I,0)}</b> µS/cm·s${chipQ("dil")}`);
+  updateResult("dil");
+  renderParamHints();updateCompare();updateTasks();updateReport();drawVisible();
+}
+
+/* ======================================================================
+   PARAMETERS
+   ====================================================================== */
+const PMEAS=["L","slopeL","M"];
+function renderParams(){document.querySelectorAll("[data-p]").forEach(inp=>{const k=inp.dataset.p,v=DS().p[k];if(document.activeElement!==inp)inp.value=v??"";inp.readOnly=S.ds==="example"&&PMEAS.includes(k)});
+  const sel=$("#nType");sel.innerHTML=`<option value="">Choose a description…</option>`+NTYPES.map((t,i)=>`<option value="${i}">${t.label} (n ${t.min}–${t.max})</option>`).join("");sel.value=DS().p.nType??""}
+function renderParamHints(){const p=DS().p,set=(k,msg)=>{const el=document.getElementById("ph-"+k);if(el)el.textContent=msg||""};
+  const ex=S.ds==="example";
+  set("L",ex?"Measured on the day":(!isN(p.L)||p.L<=0)?"Enter a length greater than 0.":"");
+  set("slopeL",ex?"Measured on the day":(!isN(p.slopeL)||p.slopeL<=0)?"Enter a distance greater than 0.":"");
+  set("M",ex?"Weighed on the day":(!isN(p.M)||p.M<=0)?"Enter the salt mass in grams.":"");
+  set("k",!isN(p.k)?"Enter a value, usually 0.8–0.9.":(p.k<0.6||p.k>1)?"k is normally 0.8–0.9 on a rough bed, and always below 1.":"");
+  set("n",p.nType==null?"Choose a description first.":!isN(p.n)?"Enter a value.":(p.n<0.02||p.n>0.1)?"Natural channels are usually 0.025–0.07.":"");
+  const first=R&&R.dil.ser.length?R.dil.ser[0].t:0;set("bgEnd",isN(p.bgEnd)&&p.bgEnd<=first?"No readings fall before this time.":"")}
+document.addEventListener("input",e=>{const t=e.target;
+  if(t.dataset.p){const v=parseNum(t.value);DS().p[t.dataset.p]=v;t.closest(".inp").classList.toggle("bad",v!=null&&!isN(v));save();update()}
+  if(t.dataset.a){S.A[t.dataset.a]=num(t.value);save();update()}
+  if(t.dataset.mine){Wk().mine[t.dataset.mine]=num(t.value);save()}
+  if(t.dataset.interp){S.A.interp[t.dataset.interp]=t.value;save();updateTasks();updateReport()}
+  if(t.dataset.rf){S.A.refl[t.dataset.rf]=t.value;save();updateTasks();updateReport()}
+  if(t.id==="fN"){t.dataset.touched="1";update()}
+  if(t.dataset.cell){const key=t.dataset.cell,r=DS()[key][+t.dataset.i],fld=t.dataset.f,c=TBL[key].cols.find(c=>c.k===fld);
+    if(fld==="note"||(c&&c.t))r[fld]=t.value;else{const v=parseNum(t.value);r[fld]=v;const bad=(v!=null&&!isN(v))||(isN(v)&&(v<c.min||v>c.max));t.closest(".inp").classList.toggle("bad",bad);t.setAttribute("aria-invalid",bad?"true":"false")}
+    save();update()}
+});
+$("#nType").addEventListener("change",e=>{const v=e.target.value;const p=DS().p;p.nType=v===""?null:+v;p.n=p.nType==null?null:NTYPES[p.nType].nor;$("#p-n").value=p.n??"";save();update()});
+document.addEventListener("wheel",e=>{if(e.target.matches&&e.target.matches("input[inputmode=decimal]")&&document.activeElement===e.target)e.target.blur()},{passive:true});
+document.addEventListener("paste",e=>{const t=e.target;if(!t.dataset||!t.dataset.cell||t.dataset.f==="note")return;const txt=(e.clipboardData||window.clipboardData).getData("text");const vals=txt.split(/[\r\n\t,;]+/).map(s=>s.trim()).filter(Boolean);if(vals.length<2)return;e.preventDefault();
+  undoSnap=snap();const key=t.dataset.cell,rows=DS()[key];let i=+t.dataset.i;vals.forEach(v=>{if(!rows[i])rows.push(row({}));rows[i][t.dataset.f]=parseNum(v);i++});save();renderTable(key);update();toast(`Pasted ${vals.length} values.`,true)});
+
+/* ======================================================================
+   TABLE EVENTS
+   ====================================================================== */
+const methodOf=k=>XS.includes(k)?"survey":k==="up"||k==="down"?"slope":k==="cal"?"dil":k;
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.inc){const key=b.dataset.inc,i=+b.dataset.i,r=DS()[key][i];const m=methodOf(key);lastChange={m,prev:R[m]?R[m].Q:null};r.inc=!r.inc;if(r.inc)r.why="";save();renderTable(key);update();
+    const nx=r.inc?document.querySelector(`[data-inc="${key}"][data-i="${i}"]`):document.getElementById(`why-${key}-${i}`);if(nx)nx.focus()}
+  if(b.dataset.del){const key=b.dataset.del,i=+b.dataset.i;undoSnap=snap();DS()[key].splice(i,1);save();renderTable(key);update();toast(`Deleted ${TBL[key].row.toLowerCase()} ${i+1}.`,true)}
+  if(b.dataset.add){const key=b.dataset.add;DS()[key].push(row({}));save();renderTable(key);update();const inp=document.querySelector(`#t-${key} tr:last-child input`);if(inp)inp.focus()}
+  if(b.dataset.clear){const key=b.dataset.clear,n=DS()[key].length;if(!n)return;undoSnap=snap();DS()[key]=[];save();renderTable(key);update();toast(`Cleared ${n} row${n>1?"s":""}.`,true)}
+  if(b.dataset.resetx){const key=b.dataset.resetx;undoSnap=snap();DS()[key].forEach(r=>{r.inc=true;r.why=""});save();renderTable(key);update();toast("All readings in this table are used again.",true)}
+  if(b.dataset.odd){const key=b.dataset.odd;S.showOut[key]=!S.showOut[key];save();renderTable(key);const x=document.querySelector(`[data-odd="${key}"]`);if(x)x.focus()}
+  if(b.dataset.row){const [key,i]=b.dataset.row.split(":");const tr=document.getElementById(`row-${key}-${i}`);if(tr){tr.scrollIntoView({block:"center",behavior:"smooth"});tr.classList.add("flash");setTimeout(()=>tr.classList.remove("flash"),1600);const bt=tr.querySelector(".incbtn");if(bt)bt.focus({preventScroll:true})}}
+  if(b.id==="exLock"){const A=S.A;A.exLocked=true;if(!isN(A.exFirst))A.exFirst=A.exW*A.exD*A.exV;save();update();toast("Estimate locked in. The group's estimates are now showing.");const u=$("#exUnlock");if(u)u.focus()}
+  if(b.id==="exUnlock"){S.A.exLocked=false;save();update();$("#exW").focus();toast("You can change your inputs now. Your first locked-in estimate is kept for the summary.")}
+});
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.why){const r=DS()[t.dataset.why][+t.dataset.i];r.why=t.value;t.classList.toggle("need",!t.value);save();update()}});
+document.addEventListener("focusin",e=>{const tr=e.target.closest&&e.target.closest("tr[data-k]");if(!tr)return;const k=tr.dataset.k,i=+tr.dataset.i;if(HL.k===k&&HL.i===i)return;document.querySelectorAll("tr.hl").forEach(x=>x.classList.remove("hl"));tr.classList.add("hl");HL={k,i};drawVisible()});
+
+/* ======================================================================
+   TASKS, RAIL, NAVIGATION
+   ====================================================================== */
+const TASKS={
+  brief:[{id:"mode",t:"Choose which data you're using",auto:()=>!!S.mode},{id:"b-site",t:"Study the reach diagram so you know where T1, T2 and T3 are"},{id:"b-safe",t:"Have your notebook and your group's readings to hand",mode:"field"},{id:"b-remote",t:"Look at the site conditions the previous group worked in",mode:"remote"}],
+  expert:[{id:"e-in",t:"Enter your width, depth and velocity estimates",auto:()=>isN(S.A.exW)&&isN(S.A.exD)&&isN(S.A.exV)},{id:"e-lock",t:"Lock in your estimate",auto:()=>isN(S.A.exFirst)},{id:"e-rev",t:"Review the group's estimates. Exclude any you don't trust and give a reason",tables:["expert"]},{id:"e-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.expert)}],
+  survey:[{id:"s-notes",t:"Read how the survey was done and the notes on how the data were collected"},{id:"s-rev",t:"Check each profile on the chart. Exclude suspect depths and give a reason",tables:XS},{id:"s-ok",t:"All three transects give an area, with nothing left to fix",auto:()=>!!R&&R.nXS===3&&!issues("survey").E.length},{id:"s-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.survey)}],
+  float:[{id:"f-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"f-rev",t:"Review the runs. Exclude any you don't trust and give a reason",tables:["float"]},{id:"f-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.float},{id:"f-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.float)}],
+  slope:[{id:"sl-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"sl-rev",t:"Review the staff readings. Exclude any you don't trust and give a reason",tables:["up","down"]},{id:"sl-n",t:"Choose Manning's n for this reach",auto:()=>DS().p.nType!=null},{id:"sl-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.slope},{id:"sl-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.slope)}],
+  dil:[{id:"d-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"d-cal",t:"Review the calibration points and the fitted line",tables:["cal"]},{id:"d-ser",t:"Set the background window and review the EC readings",tables:["dil"]},{id:"d-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.dil},{id:"d-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.dil)}],
+  compare:[{id:"c-chart",t:"Compare the four estimates and what each range means"},{id:"c-rate",t:"Rate each method on all five criteria",auto:()=>ratingCount()===20},{id:"c-scen",t:"Answer the four scenarios",auto:()=>Object.keys(S.A.quiz).length===4},{id:"c-staff",t:"Compare your ratings with the staff view",auto:()=>!!S.A.staff}],
+  reflect:[{id:"r-q",t:"Answer all four questions",auto:()=>REFL.every(([k])=>filled(S.A.refl[k]))},{id:"r-copy",t:"Copy your summary somewhere safe",auto:()=>!!S.A.copied}]
+};
+const modeNow=()=>S.mode||"remote";
+const tasksFor=k=>TASKS[k].filter(t=>!t.mode||t.mode===modeNow());
+function taskState(t){if(t.auto)return {done:!!t.auto()};const ticked=!!S.A.ticks[t.id];let miss=0;if(t.tables)t.tables.forEach(k=>DS()[k].forEach(r=>{if(!r.inc&&!r.why)miss++}));return {done:ticked&&!miss,ticked,miss}}
+const stepDone=k=>tasksFor(k).every(t=>taskState(t).done);
+function updateTasks(){
+  const fid=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.tick;
+  STEPS.forEach(st=>{const el=document.getElementById("tasks-"+st.k);if(!el)return;const list=tasksFor(st.k);let n=0;
+    el.innerHTML=list.map(t=>{const s=taskState(t);if(s.done)n++;
+      if(t.auto)return `<li class="task${s.done?" done":""}"><span class="ticon" aria-hidden="true">${s.done?"✓":""}</span><span>${t.t}</span><span class="sr">${s.done?"(done)":"(to do)"}</span></li>`;
+      return `<li class="task${s.done?" done":""}"><label><input type="checkbox" data-tick="${t.id}" ${s.ticked?"checked":""}><span>${t.t}</span></label>${s.miss?`<span class="tmiss">${s.miss} exclusion${s.miss>1?"s":""} still need${s.miss>1?"":"s"} a reason</span>`:""}</li>`}).join("");
+    setHTML("tc-"+st.k,`${n} of ${list.length} done`)});
+  if(fid){const x=document.querySelector(`[data-tick="${fid}"]`);if(x)x.focus()}
+  renderRail();
+}
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.tick){S.A.ticks[t.dataset.tick]=t.checked;save();updateTasks()}});
+function renderRail(){const idx=STEPS.findIndex(s=>s.k===S.step);const done=STEPS.filter(s=>stepDone(s.k)).length;
+  $("#progBar").style.width=(done/STEPS.length*100)+"%";
+  const hadFocus=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#rail");
+  $("#rail").innerHTML=STEPS.map((s,i)=>{const d=stepDone(s.k);return `<li><button type="button" class="${d?"done":""}" data-go="${s.k}" ${S.step===s.k?'aria-current="step"':""}><span class="n" aria-hidden="true">${d?"✓":i+1}</span>${s.name}<span class="sr">${d?", done":""}</span></button></li>`}).join("");
+  const cur=$("#rail [aria-current]");if(cur){const rl=$("#rail");rl.scrollLeft=cur.offsetLeft-rl.clientWidth/2+cur.offsetWidth/2;if(hadFocus)cur.focus()}
+  $("#stepSel").innerHTML=STEPS.map((s,i)=>`<option value="${s.k}" ${S.step===s.k?"selected":""}>${i+1} of 8 · ${s.name}${stepDone(s.k)?" (done)":""}</option>`).join("");
+  $("#stPrev").disabled=idx===0;$("#stNext").disabled=idx===STEPS.length-1;$("#navBack").disabled=idx===0;
+  const nx=STEPS[idx+1];$("#navNext").hidden=!nx;if(nx)$("#navNext").textContent=`Next: ${nx.name} →`;
+  const left=tasksFor(S.step).filter(t=>!taskState(t).done).length;
+  $("#navWhere").textContent=`Step ${idx+1} of 8 · ${done} of 8 steps done${left?` · ${left} task${left>1?"s":""} left on this step`:" · this step is done"}`;
+}
+function go(k,focus=true){if(!STEPS.some(s=>s.k===k))k="brief";S.step=k;document.querySelectorAll("section.step").forEach(s=>s.hidden=s.dataset.step!==k);save();renderRail();window.scrollTo(0,0);drawVisible();
+  if(focus){const h=document.querySelector(`section[data-step="${k}"] h1, section[data-step="${k}"] h2`);if(h)h.focus({preventScroll:true})}}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(b)go(b.dataset.go)});
+$("#navBack").addEventListener("click",()=>{const i=STEPS.findIndex(s=>s.k===S.step);if(i>0)go(STEPS[i-1].k)});
+$("#navNext").addEventListener("click",()=>{const i=STEPS.findIndex(s=>s.k===S.step);if(i<STEPS.length-1)go(STEPS[i+1].k)});
+$("#stPrev").addEventListener("click",()=>$("#navBack").click());$("#stNext").addEventListener("click",()=>$("#navNext").click());
+$("#stepSel").addEventListener("change",e=>go(e.target.value));
+
+/* ======================================================================
+   MODE, DATASET, TOP BAR
+   ====================================================================== */
+const ownEmpty=()=>!S.data.own||Object.keys(TBL).every(k=>!S.data.own[k].length);
+function applyClasses(){const m=modeNow();document.body.classList.toggle("m-field",m==="field");document.body.classList.toggle("m-remote",m==="remote");document.body.classList.toggle("ds-own",S.ds==="own");document.body.classList.toggle("ds-example",S.ds==="example");
+  document.querySelectorAll("[data-mode]").forEach(b=>b.setAttribute("aria-pressed",S.mode===b.dataset.mode));
+  document.querySelectorAll(".seg [data-ds]").forEach(b=>b.setAttribute("aria-pressed",S.ds===b.dataset.ds));
+  $("#modeChip").textContent=S.mode==="field"?"Your group's data":S.mode==="remote"?"Previous group's data":"After the field day"}
+function renderLoggers(){Object.keys(LOG).forEach(renderLogger)}
+function renderAll(){renderAllTables();renderParams();renderLoggers();renderNotes()}
+function setMode(m){S.mode=m;if(m==="field"){if(!S.data.own)S.data.own=blankDS();S.ds="own"}else S.ds="example";save();applyClasses();renderAll();update();toast(m==="field"?"Blank tables are ready for your notebook readings.":"Using the previous group's readings.")}
+function setDS(ds){if(ds==="own"&&!S.data.own)S.data.own=blankDS();S.ds=ds;save();applyClasses();renderAll();update();toast(ds==="own"?"Now showing your group's data.":"Now showing the example data. Its values are locked, but you can still exclude readings.")}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-mode],[data-ds]");if(!b)return;if(b.dataset.mode)setMode(b.dataset.mode);else setDS(b.dataset.ds)});
+$("#optsBtn")&&$("#optsBtn").addEventListener("click",()=>{const o=$("#opts");const open=!o.classList.contains("open");o.classList.toggle("open",open);$("#optsBtn").setAttribute("aria-expanded",open)});
+$("#dataBtn").addEventListener("click",()=>{const p=$("#dataPanel");p.hidden=!p.hidden;$("#dataBtn").setAttribute("aria-expanded",!p.hidden);if(!p.hidden){$("#expText").value=S.data.own?JSON.stringify({app:"derwent-flow-gauging",v:2,data:S.data.own}):"";$("#expCopy").disabled=!S.data.own;$("#expMsg").textContent=S.data.own?"":"You haven't started your group's data yet."}});
+function showSaved(){return;const el=$("#saved");if(!storageOK){el.textContent="Not saving: this browser is blocking storage. Copy your summary before closing.";el.classList.add("bad");return}el.classList.remove("bad");if(S.savedAt){const d=new Date(S.savedAt);el.textContent=`Saved on this device at ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`}}
+function copyText(ta,msgEl,done){const sel=()=>{ta.focus();ta.select();msgEl.textContent="Text selected. Press Ctrl+C (or Cmd+C) to copy, or long-press and choose Copy.";done&&done()};
+  try{navigator.clipboard.writeText(ta.value).then(()=>{msgEl.textContent="Copied.";done&&done()},sel)}catch(e){sel()}}
+$("#expCopy").addEventListener("click",()=>copyText($("#expText"),$("#expMsg")));
+function doImport(mode){S.mode="field";let o;try{o=JSON.parse($("#impText").value.trim())}catch(e){$("#impMsg").textContent="That doesn't look like a data code. Paste the whole code, starting with {.";return}
+  if(!o||o.app!=="derwent-flow-gauging"||!o.data){$("#impMsg").textContent="That code isn't from this activity.";return}
+  if(!S.data.own)S.data.own=blankDS();S.ds="own";undoSnap=snap();
+  if(mode==="replace")S.data.own=o.data;else{Object.keys(TBL).forEach(k=>{S.data.own[k]=[...S.data.own[k],...(o.data[k]||[])]});Object.keys(o.data.p||{}).forEach(k=>{if(S.data.own.p[k]==null)S.data.own.p[k]=o.data.p[k]})}
+  save();applyClasses();renderAll();update();const msg=mode==="replace"?"Replaced your group's data.":"Added their readings to yours.";$("#impMsg").textContent=msg;toast(msg,true)}
+$("#impMerge").addEventListener("click",()=>doImport("merge"));$("#impReplace").addEventListener("click",()=>doImport("replace"));
+$("#expDl").addEventListener("click",()=>{try{const code=JSON.stringify({app:"derwent-flow-gauging",v:2,data:S.data.own});const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([code],{type:"application/json"}));a.download="derwent-flow-data.json";document.body.appendChild(a);a.click();a.remove();$("#expMsg").textContent="Download started. If nothing happens, use Copy instead."}catch(e){$("#expMsg").textContent="This browser blocked the download. Use Copy instead."}});
+$("#impFile").addEventListener("change",e=>{const fl=e.target.files[0];if(!fl)return;const rd=new FileReader();rd.onload=()=>{$("#impText").value=String(rd.result);$("#impMsg").textContent="File loaded. Now choose Add or Replace."};rd.readAsText(fl)});
+
+/* ---------- glossary ---------- */
+let defOpener=null;
+document.addEventListener("click",e=>{const b=e.target.closest(".term");if(!b)return;const t=TERMS[b.dataset.term];if(!t)return;defOpener=b;$("#defTitle").textContent=t[0];$("#defBody").textContent=t[1];$("#defbox").hidden=false;$("#defX").focus()});
+$("#defX").addEventListener("click",()=>{$("#defbox").hidden=true;if(defOpener)defOpener.focus()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#defbox").hidden){$("#defbox").hidden=true;if(defOpener)defOpener.focus()}});
+function renderGlossary(){$("#glossary").innerHTML=Object.values(TERMS).sort((a,b)=>a[0].localeCompare(b[0])).map(([t,d])=>`<dt><b>${esc(t)}</b></dt><dd>${esc(d)}</dd>`).join("")}
+
+/* ---------- notes and question panels ---------- */
+function renderNotes(){[["n-survey","survey"],["n-float","float"],["n-slope","slope"],["n-dil","dil"]].forEach(([id,k])=>{const el=document.getElementById(id);if(!el)return;
+  el.innerHTML=NOTES[k].map(([t,n,r])=>`<div class="note"><span class="tag">${esc(t)}</span><span>${esc(n)}${r&&S.ds==="example"?` <button type="button" class="rowlink" data-row="${r}">Show this reading</button>`:""}</span></div>`).join("")+
+    (PHOTOS[k]&&PHOTOS[k].length?PHOTOS[k].map(p=>`<figure><img src="${esc(p.src)}" alt="${esc(p.caption)}"><figcaption>${esc(p.caption)}</figcaption></figure>`).join(""):"")})}
+function renderInterp(){Object.keys(INTERP).forEach(m=>{const el=document.getElementById("iq-"+m);if(!el)return;const M=METHODS.find(x=>x.k===m);
+  el.innerHTML=`<div class="panel iq" style="--mc:var(${M?M.c:"--river"})"><h3>Think about it</h3><label for="iq-t-${m}">${INTERP[m]}</label><textarea id="iq-t-${m}" data-interp="${m}">${esc(S.A.interp[m]||"")}</textarea><p class="hint">Two or three sentences is enough. This goes into your summary.</p></div>`})}
+
+/* ======================================================================
+   COMPARE
+   ====================================================================== */
+const ratingCount=()=>METHODS.reduce((s,M)=>s+CRIT.filter((c,j)=>(S.A.ratings[M.k]||{})[j]).length,0);
+function updateCompare(){
+  setHTML("cmpTbl",`<thead><tr><th>Method</th><th>Q (m³/s)</th><th>Range (m³/s)</th><th>Range comes from</th><th>Before cleaning</th></tr></thead><tbody>${METHODS.map(M=>{const r=R[M.k],ok=rev(M.k)&&isN(r.Q);
+    return `<tr><td data-label="Method" class="full"><b>${M.name}</b></td><td data-label="Q (m³/s)" class="mono">${ok?f(r.Q,3):`<button type="button" class="btn small" data-go="${M.step}">Finish Step ${M.n}</button>`}</td><td data-label="Range (m³/s)" class="mono">${ok?`${f(r.lo,2)} – ${f(r.hi,2)}`:"—"}</td><td data-label="Range comes from">${BASIS[M.k]}</td><td data-label="Before cleaning" class="mono">${ok?f(Rr[M.k].Q,3):"—"}</td></tr>`}).join("")}</tbody>`);
+  const n=ratingCount();$("#rateCount").textContent=S.A.staff?"Staff view shown below each of your ratings.":`${n} of 20 rated`;$("#revealRef").disabled=n<20&&!S.A.staff;$("#revealRef").textContent=S.A.staff?"Hide staff view":"Show staff view";
+}
+function renderMatrix(){const fid=document.activeElement&&document.activeElement.id;
+  $("#matrix").innerHTML=`<thead><tr><th>Method</th>${CRIT.map(c=>`<th>${c}</th>`).join("")}<th>Best suited to</th></tr></thead><tbody>${METHODS.map(M=>`<tr><td data-label="Method" class="full"><b>${M.name}</b></td>${CRIT.map((c,j)=>{const v=(S.A.ratings[M.k]||{})[j]||"";return `<td data-label="${c}"><select id="rt-${M.k}-${j}" data-rm="${M.k}" data-rj="${j}" aria-label="${M.name}: ${c}"><option value="">Choose…</option>${["Low","Medium","High"].map(o=>`<option${v===o?" selected":""}>${o}</option>`).join("")}</select>${S.A.staff?`<span class="ref">Staff: ${REF[M.k].v[j]}</span>`:""}</td>`}).join("")}<td data-label="Best suited to" class="full" style="white-space:normal;min-width:200px">${S.A.staff?`<span class="ref">${REF[M.k].best}</span>`:'<span class="hint">Shown with the staff view</span>'}</td></tr>`).join("")}</tbody>`;
+  if(fid){const x=document.getElementById(fid);if(x)x.focus()}}
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.rm){(S.A.ratings[t.dataset.rm]=S.A.ratings[t.dataset.rm]||{})[t.dataset.rj]=t.value;save();update()}});
+$("#revealRef").addEventListener("click",()=>{S.A.staff=!S.A.staff;save();renderMatrix();update();$("#revealRef").focus()});
+function renderScen(){$("#scen").innerHTML=SCEN.map((s,i)=>{const pick=S.A.quiz[i];return `<div class="scen" role="group" aria-labelledby="sq-${i}"><p id="sq-${i}"><b>${i+1}.</b> ${s.q}</p><div class="opts2">${METHODS.map(M=>`<button type="button" class="btn" data-sq="${i}" data-sm="${M.k}" aria-pressed="${pick===M.k}">${M.name}</button>`).join("")}</div>${pick?`<p class="fb ${pick===s.a?"ok":"no"}" role="status"><b>${pick===s.a?"Good choice.":"Not the best fit."}</b> ${s.fb[pick]}</p>`:""}</div>`}).join("")}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-sq]");if(!b)return;S.A.quiz[b.dataset.sq]=b.dataset.sm;save();renderScen();update();const x=document.querySelector(`[data-sq="${b.dataset.sq}"][data-sm="${b.dataset.sm}"]`);if(x)x.focus()});
+
+/* ======================================================================
+   REFLECT AND SUMMARY
+   ====================================================================== */
+function renderRefl(){$("#refl").innerHTML=REFL.map(([k,t,q])=>`<div class="panel q"><h3>${t}</h3><label for="rf-${k}" class="hint">${q}</label><textarea id="rf-${k}" data-rf="${k}">${esc(S.A.refl[k]||"")}</textarea></div>`).join("")}
+function exclusions(key){const T=TBL[key],c=T.cols.find(c=>!c.t);return DS()[key].map((r,i)=>r.inc?null:`${T.row.toLowerCase()} ${i+1} (${r[c.k]}${c.u?" "+c.u:""}): ${r.why||"no reason given"}`).filter(Boolean)}
+function updateReport(){if(!R)return;const L=[],A=S.A,p=DS().p;
+  L.push("RIVER FLOW GAUGING · River Derwent tributary, Keswick");
+  L.push(`Taking part: ${S.mode==="field"?"on the field trip":S.mode==="remote"?"remotely":"not chosen"} · Data: ${S.ds==="own"?"our group's readings":"example (previous group)"}`);
+  L.push("");L.push("RESULTS (m³/s)");
+  L.push(`  My locked-in eye estimate ... ${f(A.exFirst,3)}`);
+  METHODS.forEach(M=>{const r=R[M.k];L.push(`  ${(M.name+" ").padEnd(28,".")} ${rev(M.k)?f(r.Q,3)+`   range ${f(r.lo,2)} – ${f(r.hi,2)}   before cleaning ${f(Rr[M.k].Q,3)}`:"not worked out yet"}`)});
+  L.push("");L.push("KEY INPUTS");
+  L.push(`  Mean area Ā = ${f(R.A,3)} m², P̄ = ${f(R.P,3)} m, R = ${f(R.Rh,3)} m`);
+  L.push(`  Float: L = ${p.L} m, k = ${p.k}, mean time ${f(R.float.tb,2)} s from ${R.float.nAll} runs`);
+  L.push(`  Slope-area: S = ${f(R.slope.S,5)}, n = ${p.n??"—"} (${R.slope.nt?R.slope.nt.label:"no description chosen"})`);
+  L.push(`  Dilution: M = ${p.M} g, k_c = ${f(R.dil.kc,4)} mg/L per µS/cm, EC_b = ${f(R.dil.bg,2)} µS/cm (readings before ${p.bgEnd} s)`);
+  L.push("");L.push("READINGS I EXCLUDED, AND WHY");
+  const ex=[["Group estimates","expert"],...XS.map(k=>["Survey "+k,k]),["Float runs","float"],["Upstream staff","up"],["Downstream staff","down"],["Calibration","cal"],["EC series","dil"]].map(([l,k])=>[l,exclusions(k)]).filter(([,x])=>x.length);
+  if(!ex.length)L.push("  none");ex.forEach(([l,x])=>L.push(`  ${l}: ${x.join("; ")}`));
+  L.push("");L.push("STEP QUESTIONS");
+  Object.keys(INTERP).forEach(m=>{L.push(`  ${STEPS.find(s=>s.k===m).name}: ${INTERP[m]}`);L.push("    "+((A.interp[m]||"").trim().replace(/\n/g,"\n    ")||"—"))});
+  L.push("");L.push("SCENARIOS");SCEN.forEach((s,i)=>{const pk=A.quiz[i];L.push(`  ${i+1}. ${pk?mlabel(pk)+(pk===s.a?" (matches staff answer)":` (staff answer: ${mlabel(s.a)})`):"not answered"}`)});
+  L.push("");L.push("MY RATINGS (accuracy, complexity, equipment, cost, safety risk)");METHODS.forEach(M=>L.push(`  ${M.name}: ${CRIT.map((c,j)=>(A.ratings[M.k]||{})[j]||"—").join(", ")}`));
+  L.push("");L.push("REFLECTIONS");REFL.forEach(([k,t])=>{L.push(`  ${t}:`);L.push("    "+((A.refl[k]||"").trim().replace(/\n/g,"\n    ")||"—"))});
+  $("#report").value=L.join("\n")}
+$("#copyRep").addEventListener("click",()=>copyText($("#report"),$("#copyMsg"),()=>{S.A.copied=true;save();updateTasks()}));
+$("#report").addEventListener("copy",()=>{S.A.copied=true;save();updateTasks()});
+$("#resetAll").addEventListener("click",()=>{$("#resetConfirm").hidden=false;$("#resetYes").focus()});
+$("#resetNo").addEventListener("click",()=>{$("#resetConfirm").hidden=true;$("#resetAll").focus()});
+$("#resetYes").addEventListener("click",()=>{const own=S.data.own,mode=S.mode;S=fresh(own);S.mode=mode;S.ds=mode==="field"&&own?"own":"example";$("#resetConfirm").hidden=true;save();boot("brief");toast("Your work has been reset.")});
+
+/* ======================================================================
+   BOOT
+   ====================================================================== */
+function boot(startAt){
+  xsTablesHTML();["float","slope","dil"].forEach(resultSkeleton);renderGlossary();renderInterp();renderScen();renderRefl();renderMatrix();
+  applyClasses();renderAll();
+  ["exW","exD","exV"].forEach(k=>{document.getElementById(k).value=S.A[k]??""});
+  const h=location.hash.replace("#","");update();go(startAt||(STEPS.some(s=>s.k===h)?h:S.step),false);showSaved();
+}
+let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(drawVisible,150)});
+boot();
+</script>
+</body>
+</html>
