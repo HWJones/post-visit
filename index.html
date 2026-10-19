@@ -292,6 +292,34 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid va
   .inp{min-height:46px}
 }
 @media (prefers-reduced-motion:no-preference){section.step{animation:rise .2s ease-out}@keyframes rise{from{transform:translateY(4px)}to{transform:none}}}
+
+/* ---------- self-check additions ---------- */
+.qlist{display:grid;gap:18px}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px;min-width:0}
+.qcard.done{border-color:var(--good)}
+.qhead{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.qn{font-family:var(--f-display);font-weight:700;font-size:16px}
+.stem{font-size:16px;max-width:75ch}
+.vopts{display:grid;gap:8px}
+.opt{width:100%;text-align:left;justify-content:flex-start;align-items:flex-start;min-height:44px;font-size:15px;line-height:1.4;padding:9px 14px}
+.opt .lt{font-family:var(--f-mono);font-weight:600;margin-right:6px}
+.opt.right{border-color:var(--good);background:var(--good-soft);color:var(--good);font-weight:600}
+.opt.wrong{border-color:var(--flag);background:var(--flag-soft);color:var(--flag-ink)}
+.opt[disabled]{opacity:1;cursor:default}
+table.rt td.fbcell{font-family:var(--f-body);font-size:14px;white-space:normal;padding:6px 12px 10px}
+.fblist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.fblist li{border-radius:var(--r);padding:8px 12px;font-size:14.5px}
+.fblist li.good{background:var(--good-soft);color:var(--good)}
+.fblist li.bad{background:var(--flag-soft);color:var(--flag-ink)}
+tr.anom td{background:var(--flag-tint)}
+.catrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+.catbar{grid-column:1/-1;height:12px;background:var(--sunk);border-radius:6px;overflow:hidden;display:flex}
+.catbar i{display:block;height:100%}
+.catbar .a{background:var(--good)} .catbar .b{background:var(--warn-ink);opacity:.55}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13.5px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size:13px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px}
+.bigscore{font-family:var(--f-display);font-weight:800;font-size:34px}
 </style>
 </head>
 <body>
@@ -300,6 +328,7 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid va
 <div class="topbar" id="topbar">
   <div class="bar1">
     <div class="brand"><span>Derwent flow gauging</span><span class="chipmode" id="modeChip"></span></div>
+    <span class="saved" id="qzProg" aria-live="polite"></span>
     <button type="button" class="btn small primary own-only" id="dataBtn" aria-expanded="false" aria-controls="dataPanel">Back up / share</button>
   </div>
   <div class="progress" aria-hidden="true"><i id="progBar" style="width:0"></i></div>
@@ -423,6 +452,7 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid va
       </div>
     </div>
   </div>
+  <div data-qids="m1,m7" data-zone="expert"></div>
   <div id="iq-expert"></div>
 </section>
 
@@ -475,6 +505,7 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid va
     <p class="hint">Area uses the <button type="button" class="term" data-term="trap">trapezium rule</button> between neighbouring depths: <span class="mono">A = Σ ½(dᵢ + dᵢ₊₁)(xᵢ₊₁ − xᵢ)</span>. Wetted perimeter adds up the sloping bed lengths: <span class="mono">P = Σ √(Δx² + Δd²)</span>.</p>
     <p class="chip" id="xsWhatIf"></p>
   </div>
+  <div data-qids="k2,k6" data-zone="survey"></div>
   <div id="iq-survey"></div>
 </section>
 
@@ -532,6 +563,7 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid va
     <p class="chip" id="fNout" aria-live="polite"></p>
   </div></details>
   <div id="res-float"></div>
+  <div data-qids="k1,k7,n1,n2,u2,u6" data-zone="float"></div>
   <div id="iq-float"></div>
 </section>
 
@@ -593,6 +625,7 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid va
     <button type="button" class="dep" data-go="survey" id="dep-slope"></button>
   </div>
   <div id="res-slope"></div>
+  <div data-qids="k3,n5,u1,m5,m3" data-zone="slope"></div>
   <div id="iq-slope"></div>
 </section>
 
@@ -652,6 +685,7 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid va
     <p class="chip" id="chip-dil" aria-live="polite"></p>
   </div>
   <div id="res-dil"></div>
+  <div data-qids="k4,n3,n4,u3,u4,u5,m2,m6" data-zone="dil"></div>
   <div id="iq-dil"></div>
 </section>
 
@@ -674,10 +708,7 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid va
     <div class="tbl-wrap stackwrap"><table class="rt stack" id="matrix"></table></div>
     <div class="tools"><button type="button" class="btn" id="revealRef" disabled>Show staff view</button><span class="hint" id="rateCount" aria-live="polite"></span></div>
   </div>
-  <div class="panel">
-    <h3>Which method would you use?</h3>
-    <div id="scen" style="display:grid;gap:20px"></div>
-  </div>
+  <div data-qids="k5,u7,u8,m4,m8" data-zone="compare"></div>
 </section>
 
 <!-- ================= STEP 8: REFLECT ================= -->
@@ -689,6 +720,8 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid va
   </div>
   <div class="taskbox"><h3>To do on this step <span class="count" id="tc-reflect"></span></h3><ol class="tasks" id="tasks-reflect"></ol></div>
   <div class="grid2" id="refl"></div>
+  <div class="method-head"><h3>Your self-check results</h3><p class="hint">How you did on the "Check your understanding" questions in each step. Your first attempt counts.</p></div>
+  <div id="qz-results"></div>
   <div class="panel">
     <h3>Your summary</h3>
     <p class="hint">Everything in one block: results, exclusions and why, and all your answers. This page doesn't save anything. If you reload it or leave it, your work is gone, so copy the summary into your report or group plan before you go.</p>
@@ -718,6 +751,309 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid va
 <div class="float" id="toast" role="status" aria-live="polite" hidden><span class="msg" id="toastMsg"></span><button type="button" id="toastUndo" hidden>Undo</button><button type="button" id="toastX" aria-label="Dismiss">×</button></div>
 <div class="float def" id="defbox" role="dialog" aria-labelledby="defTitle" hidden><span class="msg"><b id="defTitle"></b><br><span id="defBody"></span></span><button type="button" id="defX" aria-label="Close definition">×</button></div>
 
+<script>
+(function(){
+/* Self-check engine, embedded. Questions render into any element with data-qids="id1,id2". */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const isN=v=>typeof v==="number"&&isFinite(v);
+const f=(x,d=3)=>isN(x)?x.toFixed(d):"—";
+const rnd=(a,b,dp=2)=>+(a+Math.random()*(b-a)).toFixed(dp);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const mean=a=>a.reduce((s,x)=>s+x,0)/a.length;
+const sd=a=>{const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1))};
+const sdp=a=>{const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/a.length)};
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const tbl=(cols,rows)=>`<div class="tbl-wrap" style="max-height:none"><table class="rt"><thead><tr>${cols.map(c=>`<th scope="col">${c}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td class="mono">${v}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+
+const META={
+  title:"Derwent flow gauging: post-visit self-check",
+  cats:{process:"Processing and cleaning data",unc:"Uncertainty, error and bias",choose:"Evaluating and choosing methods"},
+  advice:{
+    process:"Compare your exclusions and calculations with the worked steps in each step of this activity. Then use \"Try another version\" here until you get one right first time.",
+    unc:"Revisit the Compare step, and think about which errors push Q consistently one way (bias) and which just add scatter.",
+    choose:"Revisit the method ratings on the Compare step, and the \"Watch out for\" boxes in the pre-visit guide."
+  },
+  intro:`<header class="hero">
+    <div class="eyebrow">Hydrology Field Work · CIVE7XXXX · Post-visit self-check</div>
+    <h1 tabindex="-1">Can you trust the numbers?</h1>
+    <p class="lede">Practise cleaning, calculating and judging river flow data with given datasets. Every question gives feedback straight away, and most data questions give you fresh numbers to try again.</p>
+  </header>
+  <div class="panel">
+    <h3>How it works</h3>
+    <ul class="tidy">
+      <li>Data-cleaning questions show a table. Mark the readings you would exclude, then check. The feedback says why each one should go or stay.</li>
+      <li>Calculation questions use given data, not your own. If you're stuck, show the worked solution, then try another version with new numbers.</li>
+      <li>Multiple-choice questions tell you why each answer is right or wrong. If you're wrong, have another go.</li>
+      <li>Your results page shows how you did against each learning objective, and what to revisit.</li>
+      <li>This is formative: it doesn't count towards your mark, and nothing is saved when you leave the page.</li>
+    </ul>
+    <p class="hint">Use it after the post-visit activity, whether you attended the field day or not. A calculator, pen and paper will help.</p>
+  </div>
+  <div class="panel">
+    <h3>Sections</h3>
+    <ol class="tidy">
+      <li><b>Cleaning the data</b>: spot the readings that shouldn't be used (7 questions).</li>
+      <li><b>Calculations</b>: work out discharge from given field data (5 questions).</li>
+      <li><b>Uncertainty and bias</b>: how errors and choices affect the answer (8 questions).</li>
+      <li><b>Comparing and choosing methods</b>: which method suits which situation (8 questions).</li>
+    </ol>
+  </div>`
+};
+const SECTIONS=[
+  {k:"intro",name:"Start"},
+  {k:"clean",name:"Cleaning the data",blurb:"Exclude a reading only when there's a recorded problem or it's physically implausible, not just because it's a bit different from the rest."},
+  {k:"calc",name:"Calculations",blurb:"Use the given data. Give answers in the units shown. Answers within 3% count as correct, so rounding along the way is fine."},
+  {k:"unc",name:"Uncertainty and bias",blurb:"Random errors add scatter and shrink with more readings. Systematic errors (bias) push the answer one way and don't."},
+  {k:"choose",name:"Comparing and choosing methods",blurb:"Accuracy, complexity, equipment, cost, safety and river conditions all matter."},
+  {k:"results",name:"Your results"}
+];
+const curve=(t,A,t0,b)=>t>t0?A*(t-t0)**2*Math.exp(-(t-t0)/b):0;
+const QUESTIONS=[
+/* ---------------- cleaning ---------------- */
+{id:"k1",sec:"clean",cat:"process",type:"multi",make:()=>{const t0=rnd(38,44,1),n=8;const pos=Array.from({length:n},()=>pick(["Centre","Centre","Left third","Right third"]));
+ const ts=pos.map(p=>+(t0+(p==="Centre"?0:rnd(1.5,3,1))+rnd(-1.5,1.5,1)).toFixed(1));const idx=shuffle([...Array(n).keys()]);const i1=idx[0],i2=idx[1];
+ ts[i1]=+(t0*rnd(2,2.4,2)).toFixed(1);ts[i2]=+(t0*rnd(0.28,0.36,2)).toFixed(1);const notes=ts.map((t,i)=>i===i1?"Caught on a branch, freed by hand":"");
+ return {stem:"<b>Float runs.</b> A group timed eight floats over 20 m. Which runs would you exclude?",cols:["Run","Released at","Time (s)","Note"],rows:ts.map((t,i)=>[i+1,pos[i],t.toFixed(1),notes[i]||"—"]),correct:[i1,i2],
+  why:{[i1]:"There's a recorded snag: the float stopped, so this time doesn't reflect the flow.",[i2]:"Far too fast: the water would have to be moving about three times faster than in every other run. Most likely a late start on the stopwatch."},
+  explain:"Runs released near the banks are a little slower than centre runs. That's real variation across the channel, not an error, so they stay in."}}},
+{id:"k2",sec:"clean",cat:"process",type:"multi",make:()=>{const W=6,dmax=rnd(0.38,0.48,2);const xs=[];for(let x=0;x<=W+1e-9;x+=0.5)xs.push(+x.toFixed(1));
+ const ds=xs.map((x,i)=>i===0||i===xs.length-1?0:+Math.max(0.05,dmax*Math.pow(Math.sin(Math.PI*x/W),0.8)+rnd(-0.015,0.015,2)).toFixed(2));const j=pick([4,5,6,7,8]);const truev=ds[j];ds[j]=+(truev+1).toFixed(2);
+ return {stem:"<b>Depth readings across T2.</b> The stream was about knee-deep. Which readings would you exclude?",cols:["Point","Distance (m)","Depth (m)"],rows:xs.map((x,i)=>[i+1,x.toFixed(1),ds[i].toFixed(2)]),correct:[j],
+  why:{[j]:`${ds[j].toFixed(2)} m sits between ${ds[j-1].toFixed(2)} and ${ds[j+1].toFixed(2)} m. That would be chest-deep in a knee-deep stream: almost certainly ${truev.toFixed(2)} misheard or miswritten.`},
+  explain:"The two zeros are the water's edges. They're real readings and must stay in, or the area is cut short."}}},
+{id:"k3",sec:"clean",cat:"process",type:"multi",make:()=>{const u=rnd(1.38,1.44,3),dh=rnd(0.05,0.07,3);const up=[0,0,0,0].map(()=>+(u+rnd(-0.003,0.003,3)).toFixed(3)),dn=[0,0,0,0].map(()=>+(u+dh+rnd(-0.003,0.003,3)).toFixed(3));const j=pick([1,2,3]);dn[j]=+(dn[j]+0.1).toFixed(3);
+ const rows=[...up.map((r,i)=>["Upstream T1",i+1,r.toFixed(3)]),...dn.map((r,i)=>["Downstream T3",i+1,r.toFixed(3)])];
+ return {rowLabel:i=>rows[i][0]+", reading "+rows[i][1],stem:"<b>Staff readings.</b> Four readings were taken at each staff position. Which would you exclude?",cols:["Position","Reading","Staff (m)"],rows,correct:[4+j],
+  why:{[4+j]:"Exactly 0.1 m above the other downstream readings. That's the classic mistake of reading the wrong 10 cm block on the staff."},
+  explain:"The downstream readings are all bigger than the upstream ones. That's expected: the water surface is lower downstream."}}},
+{id:"k4",sec:"clean",cat:"process",type:"multi",make:()=>{const bg=rnd(55,62,1),pk=rnd(22,30,1),A=pk/(2500*Math.exp(-2));const ts=[];for(let t=40;t<=170;t+=10)ts.push(t);
+ const ec=ts.map(t=>+(bg+curve(t,A,30,25)+rnd(-0.3,0.3,1)).toFixed(1));const j=pick([8,9,10,11]);ec[j]=+(ec[j]+rnd(12,18,1)).toFixed(1);
+ return {rowLabel:i=>"t = "+ts[i]+" s",stem:"<b>EC readings as the salt cloud passes.</b> Which readings would you exclude?",cols:["Time since salt in (s)","EC (µS/cm)"],rows:ts.map((t,i)=>[t,ec[i].toFixed(1)]),correct:[j],
+  why:{[j]:"It jumps well above both neighbours and drops straight back. The salt cloud changes smoothly, so this looks like the probe being knocked."},
+  explain:"The rise to the peak and the long, slow fall afterwards are the salt cloud itself. They must stay in."}}},
+{id:"k5",sec:"clean",cat:"process",type:"mcq",stem:"Which of these is a <b>systematic</b> error rather than a random one?",opts:[
+ ["One student reads the staff 1 cm high every time",1,"It pushes every reading the same way, so averaging more readings won't remove it."],
+ ["Small differences in stopwatch reaction time between runs",0,"These vary up and down from run to run, so they're random and average out."],
+ ["A gust of wind on one float run",0,"A one-off event affecting a single run is random, or an anomaly to exclude."],
+ ["Scatter in the depth readings from the bed being uneven",0,"That's natural variation. It averages out over many readings."]]},
+{id:"k6",sec:"clean",cat:"process",type:"mcq",stem:"When is it right to exclude a reading?",opts:[
+ ["When there's a recorded problem, or the value is physically implausible",1,"Exclusions need a reason you can state. Always record the reason alongside the decision."],
+ ["Whenever it's furthest from the average",0,"Every dataset has a highest and lowest value. Being furthest away isn't a reason by itself."],
+ ["When it makes the methods disagree",0,"Removing data to make answers agree is bias. Disagreement may be telling you something real."],
+ ["Never: all data must be used",0,"Readings with a known fault, such as a snagged float, would distort the result."]]},
+{id:"k7",sec:"clean",cat:"process",type:"mcq",stem:"Floats released near the banks took about 44 s, while centre runs took 39–41 s. What should you do with the bank runs?",opts:[
+ ["Keep them: water near the banks really is slower, so they make the average more representative",1,"They're real variation across the channel. Excluding them would bias Q upwards."],
+ ["Exclude them as outliers",0,"They differ for a physical reason and there's no recorded fault, so they stay in."],
+ ["Replace them with the centre average",0,"Never replace real data with invented values."],
+ ["Only keep them if the methods disagree",0,"Decide on data quality grounds, not on whether it suits the result."]]},
+
+/* ---------------- calculations ---------------- */
+{id:"n1",sec:"calc",cat:"process",type:"num",make:()=>{const As=[0,0,0].map(()=>rnd(1.65,2.0,3));const t0=rnd(36,46,1);const ts=Array.from({length:6},()=>+(t0+rnd(-1.8,1.8,1)).toFixed(1));const j=pick([1,2,3,4]);ts[j]=+(t0*rnd(2,2.3,2)).toFixed(1);
+ const clean=ts.filter((t,i)=>i!==j),Am=mean(As),tb=mean(clean),Q=Am*0.85*20/tb,Qall=Am*0.85*20/mean(ts);
+ return {stem:`<b>Float gauging with real-world data.</b> L = 20 m and k = 0.85. The three transects gave the areas below. Run ${j+1} was noted as snagged on a branch. Work out Q from the runs you should use.`,
+  data:tbl(["Transect","Area (m²)"],As.map((a,i)=>["T"+(i+1),a.toFixed(3)]))+tbl(["Run","Time (s)","Note"],ts.map((t,i)=>[i+1,t.toFixed(1),i===j?"Snagged on a branch":"—"])),ans:Q,unit:"m³/s",
+  hints:[[Qall,"That includes the snagged run. Leave it out of the mean time."],[As[1]*0.85*20/tb,"Use the mean area of all three transects, not T2 alone."],[Am*20/tb,"Multiply the surface velocity by k = 0.85."]],
+  steps:[`Leave out run ${j+1} (snagged)`,`t̄ = mean of the other five = ${f(tb,2)} s`,`Ā = (${As.map(a=>a.toFixed(3)).join(" + ")}) ÷ 3 = ${f(Am,3)} m²`,`v̄ = 0.85 × 20 ÷ ${f(tb,2)} = ${f(0.85*20/tb,4)} m/s`,`Q = ${f(Am,3)} × ${f(0.85*20/tb,4)} = ${f(Q,3)} m³/s`]}}},
+{id:"n2",sec:"calc",cat:"process",type:"num",make:()=>{const t0=rnd(36,46,1);const ts=Array.from({length:6},()=>+(t0+rnd(-2.5,2.5,1)).toFixed(1));const s=sd(ts),se=s/Math.sqrt(6);
+ return {stem:`<b>Standard error.</b> Work out the <button type="button" class="term" data-term="se">standard error</button> of the mean travel time for these six float runs. Use the sample standard deviation (dividing by n − 1).`,data:tbl(["Run","Time (s)"],ts.map((t,i)=>[i+1,t.toFixed(1)])),ans:se,unit:"s",dp:3,
+  hints:[[s,"That's the standard deviation. Divide it by √6 to get the standard error."],[sdp(ts)/Math.sqrt(6),"Use the sample standard deviation, dividing by n − 1 = 5, not by n."],[s/6,"Divide by the square root of n, not by n."]],
+  steps:[`Mean = ${f(mean(ts),2)} s`,`Sample standard deviation s = ${f(s,3)} s`,`SE = s ÷ √n = ${f(s,3)} ÷ √6 = ${f(se,3)} s`,`So the mean time is ${f(mean(ts),1)} ± ${f(se,1)} s.`]}}},
+{id:"n3",sec:"calc",cat:"process",type:"num",make:()=>{const a=rnd(55,65,1),b=rnd(1.95,2.05,3);const c=[0,50,100,150,200],ec=c.map(x=>+(a+b*x+rnd(-0.6,0.6,1)).toFixed(1));
+ const mx=mean(c),my=mean(ec);let sxy=0,sxx=0;c.forEach((x,i)=>{sxy+=(x-mx)*(ec[i]-my);sxx+=(x-mx)**2});const bf=sxy/sxx,kc=1/bf;
+ return {stem:`<b>Calibration.</b> Known salt concentrations were made up in stream water and their EC measured. Fit a straight line (EC against concentration) and work out the calibration factor k<sub>c</sub> = 1 ÷ slope.`,data:tbl(["NaCl (mg/L)","EC (µS/cm)"],c.map((x,i)=>[x,ec[i].toFixed(1)])),ans:kc,unit:"mg/L per µS/cm",dp:4,
+  hints:[[bf,"That's the slope of the line. k_c is 1 ÷ slope."],[200/ec[4],"Dividing one concentration by its EC ignores the background EC at 0 mg/L. Use the slope of the line."]],
+  steps:[`Best-fit slope = ${f(bf,4)} µS/cm per mg/L (from the line through all five points)`,`The intercept, ${f(my-bf*mx,1)} µS/cm, is the stream's background EC`,`k_c = 1 ÷ ${f(bf,4)} = ${f(kc,4)} mg/L per µS/cm`,`A quick check from the end points gives ${f(200/(ec[4]-ec[0]),4)}, which is close`],tol:0.02}}},
+{id:"n4",sec:"calc",cat:"process",type:"num",make:()=>{const pk=rnd(18,32,1),A=pk/(900*Math.exp(-2));const ts=[];for(let t=0;t<=150;t+=10)ts.push(t);const d=ts.map(t=>+curve(t,A,0,15).toFixed(1));
+ const I=10*(d.reduce((s,x)=>s+x,0)-(d[0]+d[d.length-1])/2);const M=pick([500,1000]),kc=rnd(0.49,0.51,3);const Q=M/(kc*I);
+ return {stem:`<b>Dilution gauging.</b> M = ${M} g of salt; k<sub>c</sub> = ${kc} mg/L per µS/cm. The table gives EC after subtracting the background, every 10 s. Use the trapezium rule for the area, then work out Q.`,data:tbl(["Time (s)","EC − EC_b (µS/cm)"],ts.map((t,i)=>[t,d[i].toFixed(1)])),ans:Q,unit:"m³/s",
+  hints:[[Q*10,"Multiply the sum by the 10 s time step to get the area in µS/cm·s."],[Q*1000,"That's in litres per second. Divide by 1000 for m³/s."],[Q/1000,"Convert the salt to milligrams first: 1 g = 1000 mg."],[M/I,"Multiply the area by k_c to convert it to mg·s/L."]],
+  steps:[`Area = 10 × (sum of values − ½ × (first + last)) = ${f(I,1)} µS/cm·s`,`× k_c: ${kc} × ${f(I,1)} = ${f(kc*I,1)} mg·s/L`,`Q = ${M*1000} mg ÷ ${f(kc*I,1)} = ${f(Q*1000,1)} L/s`,`= ${f(Q,3)} m³/s`]}}},
+{id:"n5",sec:"calc",cat:"process",type:"num",make:()=>{const u=rnd(1.38,1.46,3),dh=rnd(0.045,0.075,3),L=20;const up=[0,0,0].map(()=>+(u+rnd(-0.002,0.002,3)).toFixed(3)),dn=[0,0,0].map(()=>+(u+dh+rnd(-0.002,0.002,3)).toFixed(3));
+ const A=rnd(1.7,2.1,2),P=rnd(6.3,7,2),n=pick([0.040,0.045,0.050]);const S=(mean(dn)-mean(up))/L,R=A/P,Q=(1/n)*A*Math.pow(R,2/3)*Math.sqrt(S);
+ return {stem:`<b>Slope-area.</b> Mean area Ā = ${A} m², mean wetted perimeter P̄ = ${P} m, and you chose n = ${n}. The staff positions are ${L} m apart. Work out Q.`,data:tbl(["Reading","Upstream T1 (m)","Downstream T3 (m)"],[0,1,2].map(i=>[i+1,up[i].toFixed(3),dn[i].toFixed(3)])),ans:Q,unit:"m³/s",
+  hints:[[(1/n)*A*Math.pow(R,2/3)*Math.sqrt(S*L),"Use the slope S = Δh ÷ L, not the fall Δh itself."],[(1/n)*A*R*Math.sqrt(S),"Raise R to the power 2/3."],[(1/n)*A*Math.pow(R,2/3)*S,"Use the square root of S."]],
+  steps:[`Δh = ${f(mean(dn),4)} − ${f(mean(up),4)} = ${f(mean(dn)-mean(up),4)} m`,`S = Δh ÷ ${L} = ${f(S,5)}; √S = ${f(Math.sqrt(S),4)}`,`R = ${A} ÷ ${P} = ${f(R,4)} m; R^(2/3) = ${f(Math.pow(R,2/3),4)}`,`Q = (1/${n}) × ${A} × ${f(Math.pow(R,2/3),4)} × ${f(Math.sqrt(S),4)} = ${f(Q,3)} m³/s`]}}},
+
+/* ---------------- uncertainty & bias ---------------- */
+{id:"u1",sec:"unc",cat:"unc",type:"num",make:()=>{const n1=pick([0.030,0.035,0.040,0.045]),n2=+(n1+pick([0.005,0.010,0.015])).toFixed(3);const pct=(1-n1/n2)*100;
+ return {stem:`<b>Sensitivity to n.</b> One student chooses Manning's n = ${n1}. Another, looking at the same reach, chooses n = ${n2}. Everything else is the same. By what percentage is the second student's Q <b>lower</b>?`,ans:pct,unit:"%",dp:1,
+  hints:[[(n2/n1-1)*100,"Q is proportional to 1/n, so the change is 1 − n₁/n₂, not n₂/n₁ − 1."],[-pct,"Give the size of the fall as a positive number."]],
+  steps:[`Q ∝ 1/n, so Q₂/Q₁ = n₁/n₂ = ${n1} ÷ ${n2} = ${f(n1/n2,4)}`,`Fall = (1 − ${f(n1/n2,4)}) × 100 = ${f(pct,1)}%`,`A judgement call on n changes Q by ${f(pct,0)}%. That's why slope-area is so sensitive to who chooses n.`]}}},
+{id:"u2",sec:"unc",cat:"unc",type:"num",make:()=>{const Q85=rnd(2.2,4,3);const Q80=Q85*0.80/0.85;
+ return {stem:`<b>Sensitivity to k.</b> With k = 0.85, a float gauging gives Q = ${Q85} m³/s. What would Q be with k = 0.80?`,ans:Q80,unit:"m³/s",
+  hints:[[Q85-0.05,"Q is proportional to k. Scale it: Q × 0.80 ÷ 0.85."],[Q85*0.85/0.80,"That's the value for a larger k. Multiply by 0.80 ÷ 0.85."]],
+  steps:[`Q ∝ k`,`Q = ${Q85} × 0.80 ÷ 0.85 = ${f(Q80,3)} m³/s`,`That's ${f((1-0.80/0.85)*100,1)}% lower, just from the choice of k.`]}}},
+{id:"u3",sec:"unc",cat:"unc",type:"mcq",stem:"Your EC background window accidentally includes the first few readings of the rising salt cloud. What happens to Q?",opts:[
+ ["Q comes out too high, because the background is too high and the area too small",1,"A higher EC_b subtracts too much from every reading, shrinking the area, and Q = M ÷ area."],
+ ["Q comes out too low",0,"A larger background makes the area smaller, which makes Q larger."],
+ ["No effect, because only the peak matters",0,"The whole area matters, and the background is subtracted from every reading."],
+ ["Q becomes negative",0,"Only if the background were above the peak. Here it's just a little too high."]]},
+{id:"u4",sec:"unc",cat:"unc",type:"mcq",stem:"The team stops recording EC while it's still above background. What effect does that have?",opts:[
+ ["The area is cut short, so Q is too high",1,"The missing tail contains salt. A smaller area gives a larger Q."],
+ ["The area is cut short, so Q is too low",0,"Q = M ÷ area, so a smaller area gives a larger Q."],
+ ["No effect, because the tail is small",0,"The tail is long and can hold a lot of the salt."],
+ ["It only adds random error",0,"It pushes Q one way every time, so it's a systematic error."]]},
+{id:"u5",sec:"unc",cat:"unc",type:"mcq",stem:"The salt hasn't fully mixed, and the probe sits in the most concentrated part of the plume. What happens to Q?",opts:[
+ ["Q is too low, because the probe sees more salt than the average and the area is too big",1,"A concentrated plume inflates the area. If the probe were in a weak part, Q would be too high instead."],
+ ["Q is too high",0,"That's what happens if the probe sits in a weak part of the plume."],
+ ["No effect if you subtract the background",0,"Background subtraction doesn't fix uneven mixing."],
+ ["It only affects the timing of the peak",0,"It affects the area under the curve, which is what sets Q."]]},
+{id:"u6",sec:"unc",cat:"unc",type:"mcq",stem:"Doing more float runs will reduce which of these?",opts:[
+ ["Random scatter in the timings",1,"The standard error falls roughly with 1/√n. Bias doesn't shrink with more runs."],
+ ["Bias from releasing every float in the centre",0,"More centre-only runs repeat the same bias. Release across the channel instead."],
+ ["Error from choosing the wrong k",0,"k applies equally to every run, so more runs don't change it."],
+ ["Error in the reach length",0,"A wrong L affects every run the same way."]]},
+{id:"u7",sec:"unc",cat:"unc",type:"mcq",stem:"Float gauging gives 0.74 m³/s (range 0.69–0.80) and dilution gives 0.78 m³/s (range 0.73–0.84). What's the best conclusion?",opts:[
+ ["They agree within their uncertainty, which increases confidence, but doesn't prove either is right",1,"Overlapping ranges mean the difference could be due to uncertainty alone. Both could still share a bias."],
+ ["Dilution is right because it's higher",0,"Neither method is the 'true' value. Higher doesn't mean more accurate."],
+ ["They disagree, so one must be wrong",0,"The ranges overlap, so the difference is within the expected uncertainty."],
+ ["Average them and the uncertainty disappears",0,"Averaging can help, but it doesn't remove a bias the methods share."]]},
+{id:"u8",sec:"unc",cat:"unc",type:"mcq",stem:"Float gauging and slope-area both give values about 20% higher than dilution gauging. Which shared input should you check first?",opts:[
+ ["The cross-sectional area from the channel survey, because both methods use it",1,"An error in Ā affects float gauging and slope-area in the same direction. Dilution doesn't use the area at all."],
+ ["The salt mass",0,"Salt mass only affects dilution gauging."],
+ ["The staff readings",0,"Those only affect slope-area, not float gauging."],
+ ["The float times",0,"Those only affect float gauging."]]},
+
+/* ---------------- choosing ---------------- */
+{id:"m1",sec:"choose",cat:"choose",type:"mcq",stem:"You have 20 minutes at a remote upland stream to decide whether it's worth coming back with gauging kit. Which method?",opts:[
+ ["Expert estimation",1,"An order-of-magnitude answer is all this decision needs, and it takes minutes with no kit."],
+ ["Float gauging",0,"Possible, but you'd also need a cross-section survey: more than this decision needs."],
+ ["Slope-area",0,"Far too much survey work for a go/no-go decision."],
+ ["Dilution gauging",0,"Salt, a calibrated meter and mixing time: more than this decision needs."]]},
+{id:"m2",sec:"choose",cat:"choose",type:"mcq",stem:"A steep, boulder-strewn beck where depths change every half metre. Which method?",opts:[
+ ["Dilution gauging",1,"The turbulence that defeats velocity-area methods gives the full mixing dilution gauging relies on."],
+ ["Float gauging",0,"Floats snag and take odd paths, and the uneven bed makes the area very uncertain."],
+ ["Slope-area",0,"The flow isn't uniform, and n is very uncertain in boulder beds."],
+ ["Expert estimation",0,"Fine for a first guess, but this stream needs a measurement."]]},
+{id:"m3",sec:"choose",cat:"choose",type:"mcq",stem:"You need the peak flow of last week's flood, using debris lines and surveyed cross-sections. Which method?",opts:[
+ ["Slope-area",1,"Only the channel shape and high-water marks remain. Manning's equation is the standard indirect method."],
+ ["Float gauging",0,"The flood has passed, so there's nothing to time."],
+ ["Dilution gauging",0,"You can't add salt to an event that's over."],
+ ["Expert estimation",0,"Eyewitness guesses help, but slope-area gives a defensible number."]]},
+{id:"m4",sec:"choose",cat:"choose",type:"mcq",stem:"A wide, deep lowland river in flood, gauged from a road bridge with little kit and no safe wading. Which method?",opts:[
+ ["Float gauging",1,"Floats can be dropped and timed from the bridge, and bridge drawings give the area. Choose k carefully."],
+ ["Dilution gauging",0,"The salt needed for a large flow is impractical, and mixing would take a very long distance."],
+ ["Slope-area",0,"You can't survey safely in flood, and the bridge disturbs the flow."],
+ ["Expert estimation",0,"A useful check, but you can do better from the bridge."]]},
+{id:"m5",sec:"choose",cat:"choose",type:"mcq",stem:"Which method depends most on a subjective judgement that different people might make differently?",opts:[
+ ["Slope-area, through the choice of Manning's n",1,"n is chosen from a description, and a plausible range can change Q by 20–40%."],
+ ["Dilution gauging",0,"Its main judgement is the background window, and that usually changes Q much less."],
+ ["Float gauging",0,"k is a judgement too, but its usual range (0.8–0.9) changes Q by only about 12%."],
+ ["The channel survey",0,"Depths and distances are measured, not judged."]]},
+{id:"m6",sec:"choose",cat:"choose",type:"mcq",stem:"Why is dilution gauging rarely used on large rivers?",opts:[
+ ["The salt needed rises with the discharge, and full mixing takes a very long distance",1,"A river 100 times bigger needs about 100 times more salt, and mixing lengths can run to kilometres."],
+ ["EC meters don't work in deep water",0,"They work fine. The problem is the salt mass and the mixing."],
+ ["Large rivers have no background EC",0,"All rivers have a background EC."],
+ ["It's less accurate in any river",0,"In small turbulent streams it's often the most accurate method."]]},
+{id:"m7",sec:"choose",cat:"choose",type:"mcq",stem:"Which method has the lowest equipment needs and cost, but also the lowest accuracy?",opts:[
+ ["Expert estimation",1,"It needs nothing but a trained eye. That's ideal for quick checks, but it's within a factor of two at best."],
+ ["Float gauging",0,"Cheap and simple, but it still needs a survey, so it's more accurate than an estimate by eye."],
+ ["Slope-area",0,"It needs a level, staff and survey kit."],
+ ["Dilution gauging",0,"It needs salt, scales and a calibrated EC meter."]]},
+{id:"m8",sec:"choose",cat:"choose",type:"mcq",stem:"For long-term monitoring of a small, rocky upland stream, which combination gives the best independent check?",opts:[
+ ["Dilution gauging, checked occasionally with a velocity-area method",1,"They use different measurements and assumptions, so agreement is meaningful, and dilution suits rocky turbulent streams."],
+ ["Float gauging checked with slope-area",0,"Both use the same surveyed area, so an error there affects both and they can agree while both being wrong."],
+ ["Expert estimation alone",0,"Too uncertain for monitoring."],
+ ["Slope-area alone, with the highest n",0,"One method with a deliberately extreme n gives no check at all."]]}
+];
+
+
+const ST={},VAR={};
+const ZONES=[...document.querySelectorAll("[data-qids]")];
+const ORDER=[];ZONES.forEach(z=>z.dataset.qids.split(",").forEach(id=>ORDER.push(id.trim())));
+const Q=id=>QUESTIONS.find(q=>q.id===id);
+const ALL=ORDER.map(Q).filter(Boolean);
+const variant=q=>VAR[q.id]||(VAR[q.id]=q.make());
+const st=q=>ST[q.id]||(ST[q.id]={tries:0,first:null,done:false,shown:false,pick:null,sel:[],msg:"",ok:false,val:"",order:q.type==="mcq"?shuffle(q.opts.map((o,j)=>j)):null,checked:false});
+const qNum=q=>ORDER.indexOf(q.id)+1;
+let dirty=false;window.addEventListener("beforeunload",e=>{if(dirty){e.preventDefault();e.returnValue=""}});
+
+function cardHTML(q){
+  const s=st(q);let h=`<div class="qhead"><span class="qn">Question ${qNum(q)}</span><span class="dsbadge">${META.cats[q.cat]}</span>${s.done?`<span class="dsbadge own">${s.first?"Correct first time":s.shown?"Answer shown":"Done"}</span>`:""}</div>`;
+  if(q.type==="mcq"){
+    h+=`<p class="stem" id="qz-stem-${q.id}">${q.stem}</p>${q.data||""}<div class="vopts" role="group" aria-labelledby="qz-stem-${q.id}">`+
+      s.order.map((j,k)=>{const o=q.opts[j];const cls=s.pick===j?(o[1]?"right":"wrong"):(s.done&&o[1]?"right":"");return `<button type="button" class="btn opt ${cls}" id="qz-b-${q.id}-${j}" data-mcq="${q.id}" data-j="${j}" aria-pressed="${s.pick===j}" ${s.done?'aria-disabled="true"':""}><span class="lt">${String.fromCharCode(65+k)}</span><span>${o[0]}</span></button>`}).join("")+`</div>`;
+    if(s.pick!=null){const o=q.opts[s.pick];h+=`<p class="fb ${o[1]?"ok":"no"}" role="status"><b>${o[1]?"Correct.":"Not quite."}</b> ${o[2]}${o[1]?"":" Have another go."}</p>`}
+    return h;
+  }
+  const v=variant(q);
+  if(q.type==="num"){
+    h+=`<p class="stem">${v.stem}</p>${v.data||""}<div class="check"><div class="field"><label for="qz-in-${q.id}">Your answer</label><span class="inp" style="width:200px"><input id="qz-in-${q.id}" inputmode="decimal" autocomplete="off" value="${esc(s.val)}" ${s.done?"readonly":""}><span class="u">${v.unit}</span></span></div>${s.done?"":`<button type="button" class="btn primary" id="qz-chk-${q.id}" data-num="${q.id}">Check</button>`}</div>`;
+    if(s.msg)h+=`<p class="fb ${s.ok?"ok":"no"}" role="status">${s.msg}</p>`;
+    if(s.done)h+=`<ol class="work" aria-label="Worked solution">${v.steps.map(x=>`<li>${x}</li>`).join("")}</ol>`;
+  }
+  if(q.type==="multi"){
+    const show=s.checked||s.done,fbs=[];
+    h+=`<p class="stem">${v.stem}</p><div class="tbl-wrap" style="max-height:none"><table class="rt"><thead><tr><th scope="col">Keep or exclude</th>${v.cols.map(c=>`<th scope="col">${c}</th>`).join("")}</tr></thead><tbody>`+
+      v.rows.map((r,i)=>{const ex=s.sel.includes(i),an=v.correct.includes(i);let fb="";
+        if(show){if(an&&ex)fb=`✓ ${v.why[i]}`;else if(an&&!ex)fb=s.done?`Exclude this one. ${v.why[i]}`:"";else if(!an&&ex)fb="This reading fits with the others, so keep it.";}
+        if(show&&fb)fbs.push(`<li class="${an&&ex?"good":"bad"}"><b>${v.rowLabel?v.rowLabel(i):v.cols[0]+" "+r[0]}:</b> ${fb}</li>`);
+        return `<tr class="${s.done&&an?"anom":""}"><td><button type="button" class="incbtn" id="qz-r-${q.id}-${i}" data-ms="${q.id}" data-r="${i}" aria-pressed="${!ex}" aria-label="Row ${i+1}: ${ex?"excluded":"kept"}. Press to ${ex?"keep":"exclude"} it" ${s.done?'aria-disabled="true"':""}>${ex?"Exclude":"Keep"}</button></td>${r.map(c=>`<td class="mono">${c}</td>`).join("")}</tr>`}).join("")+`</tbody></table></div>`;
+    if(fbs.length)h+=`<ul class="fblist" aria-label="Feedback on your choices">${fbs.join("")}</ul>`;
+    if(!s.done)h+=`<div class="tools"><button type="button" class="btn primary" id="qz-chk-${q.id}" data-mcheck="${q.id}">Check my choices</button></div>`;
+    if(s.msg)h+=`<p class="fb ${s.ok?"ok":"no"}" role="status">${s.msg}</p>`;
+    if(s.done&&v.explain)h+=`<p class="chip">${v.explain}</p>`;
+  }
+  const tools=[];
+  if(!s.done&&s.tries>0)tools.push(`<button type="button" class="btn" id="qz-show-${q.id}" data-show="${q.id}">Show the ${q.type==="num"?"worked solution":"answer"}</button>`);
+  if(q.make&&(s.done||s.tries>0))tools.push(`<button type="button" class="btn" id="qz-again-${q.id}" data-again="${q.id}">Try another version with new numbers</button>`);
+  if(tools.length)h+=`<div class="tools">${tools.join("")}</div>`;
+  if(s.practice)h+=`<p class="hint">Practice version: your self-check score uses your first attempt at this question.</p>`;
+  return h;
+}
+function renderCard(q){const el=document.getElementById("qz-card-"+q.id);if(!el)return;const fid=document.activeElement&&document.activeElement.id;el.innerHTML=cardHTML(q);el.classList.toggle("done",st(q).done);
+  if(fid&&fid.startsWith("qz-")){const x=document.getElementById(fid);if(x)x.focus();else{const c=document.getElementById("qz-chk-"+q.id)||el.querySelector(".fb");if(c){if(!c.matches("button"))c.tabIndex=-1;c.focus()}}}after()}
+function after(){updateProg();renderResults();if(typeof updateTasks==="function")try{updateTasks()}catch(e){}if(typeof updateReport==="function")try{updateReport()}catch(e){}}
+function record(q,ok){const s=st(q);s.tries++;if(s.first===null)s.first=ok;if(ok)s.done=true;dirty=true}
+function renderZone(z){const ids=z.dataset.qids.split(",").map(x=>x.trim()).filter(Q);
+  z.innerHTML=`<div class="qzone"><h3>Check your understanding</h3><p class="hint">${ids.length} question${ids.length>1?"s":""}. You get feedback straight away, and your first attempt counts towards your self-check results.</p><div class="qlist">${ids.map(id=>`<div class="qcard" id="qz-card-${id}"></div>`).join("")}</div></div>`;
+  ids.forEach(id=>{const el=document.getElementById("qz-card-"+id);el.innerHTML=cardHTML(Q(id));el.classList.toggle("done",st(Q(id)).done)})}
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.mcq){const q=Q(b.dataset.mcq),s=st(q);if(s.done)return;const j=+b.dataset.j;s.pick=j;record(q,!!q.opts[j][1]);renderCard(q)}
+  if(b.dataset.num){const q=Q(b.dataset.num),s=st(q),v=variant(q);const raw=document.getElementById("qz-in-"+q.id).value.trim().replace(/^(-?\d+),(\d+)$/,"$1.$2");s.val=raw;const x=raw===""?NaN:+raw;
+    if(!isFinite(x)){s.msg="Enter a number, using a decimal point (for example 0.75).";s.ok=false;renderCard(q);return}
+    const tol=v.tol||0.03,ok=Math.abs(x-v.ans)<=tol*Math.abs(v.ans);
+    if(ok){record(q,true);s.ok=true;s.msg=`<b>Correct.</b> The answer is ${f(v.ans,v.dp??3)} ${v.unit}. Compare your working with the steps below.`}
+    else{record(q,false);s.ok=false;const hit=(v.hints||[]).find(([hv])=>isN(hv)&&hv!==0&&Math.abs(x-hv)<=0.03*Math.abs(hv));s.msg=`<b>Not quite.</b> ${hit?hit[1]:(v.generic||"Check each step and the units, then try again.")}`}
+    renderCard(q)}
+  if(b.dataset.ms){const q=Q(b.dataset.ms),s=st(q);if(s.done)return;const i=+b.dataset.r;s.sel=s.sel.includes(i)?s.sel.filter(k=>k!==i):[...s.sel,i];s.checked=false;s.msg="";renderCard(q)}
+  if(b.dataset.mcheck){const q=Q(b.dataset.mcheck),s=st(q),v=variant(q);const hitN=v.correct.filter(i=>s.sel.includes(i)).length,extra=s.sel.filter(i=>!v.correct.includes(i)).length,ok=hitN===v.correct.length&&!extra;
+    record(q,ok);s.checked=true;s.ok=ok;
+    s.msg=ok?`<b>Correct.</b> You found ${v.correct.length===1?"the bad reading":v.correct.length===2?"both bad readings":`all ${v.correct.length} bad readings`} and kept the rest.`:`<b>Not quite.</b> You've found ${hitN} of ${v.correct.length} reading${v.correct.length>1?"s":""} that should go${extra?`, and excluded ${extra} that should stay`:""}. Read the feedback, change your choices and check again.`;
+    renderCard(q)}
+  if(b.dataset.show){const q=Q(b.dataset.show),s=st(q),v=variant(q);s.shown=true;s.done=true;if(s.first===null)s.first=false;if(q.type==="multi"){s.sel=[...v.correct];s.checked=true;s.msg="Here are the readings to exclude, with the reason for each."}else{s.msg=`The answer is ${f(v.ans,v.dp??3)} ${v.unit}. Work through the steps below.`;s.ok=false}dirty=true;renderCard(q)}
+  if(b.dataset.again){const q=Q(b.dataset.again),s=st(q);VAR[q.id]=q.make();Object.assign(s,{tries:0,done:false,shown:false,sel:[],msg:"",ok:false,val:"",checked:false,practice:true});renderCard(q);const i=document.getElementById("qz-in-"+q.id)||document.getElementById("qz-r-"+q.id+"-0");if(i)i.focus()}
+  if(b.id==="qz-copy"){const ta=$("#qz-summary");const sel=()=>{ta.focus();ta.select();$("#qz-copyMsg").textContent="Text selected. Press Ctrl+C (or Cmd+C) to copy."};try{navigator.clipboard.writeText(ta.value).then(()=>{$("#qz-copyMsg").textContent="Copied."},sel)}catch(x){sel()}}
+  if(b.id==="qz-restart"){$("#qz-restartConfirm").hidden=false;$("#qz-restartYes").focus()}
+  if(b.id==="qz-restartNo"){$("#qz-restartConfirm").hidden=true}
+  if(b.id==="qz-restartYes"){Object.keys(ST).forEach(k=>delete ST[k]);Object.keys(VAR).forEach(k=>delete VAR[k]);ZONES.forEach(renderZone);after()}
+  if(b.dataset.qzgo){const z=document.querySelector(`[data-zone="${b.dataset.qzgo}"]`);if(z&&typeof go==="function"){const sec=z.closest("section.step");if(sec)go(sec.dataset.step);setTimeout(()=>z.scrollIntoView({block:"start"}),30)}}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id&&e.target.id.startsWith("qz-in-")){const c=document.getElementById("qz-chk-"+e.target.id.slice(6));if(c)c.click()}});
+
+function stats(){const out={};Object.keys(META.cats).forEach(c=>out[c]={n:0,first:0,done:0,revisit:[]});
+  ALL.forEach(q=>{const s=st(q),o=out[q.cat];o.n++;if(s.first)o.first++;if(s.done)o.done++;if(s.first===false)o.revisit.push(qNum(q))});return out}
+function summary(){const S=stats(),first=ALL.filter(q=>st(q).first).length,done=ALL.filter(q=>st(q).done).length;const L=[`SELF-CHECK: ${first} of ${ALL.length} correct at the first attempt (${done} answered)`];Object.entries(S).forEach(([c,o])=>L.push(`  ${META.cats[c]}: ${o.first}/${o.n} first time${o.revisit.length?` · revisit Q${o.revisit.join(", Q")}`:""}`));return L.join("\n")}
+function zoneOf(n){const id=ORDER[n-1];const z=ZONES.find(z=>z.dataset.qids.split(",").map(x=>x.trim()).includes(id));return z?z.dataset.zone:null}
+function renderResults(){
+  const el=$("#qz-results");if(!el)return;const fid=document.activeElement&&document.activeElement.id;
+  const S=stats(),tot=ALL.length,first=ALL.filter(q=>st(q).first).length,done=ALL.filter(q=>st(q).done).length;
+  let h=`<div class="panel"><p class="bigscore">${first} of ${tot}</p><p>self-check questions correct at the first attempt. You've answered ${done} of ${tot}${done<tot?"; unanswered ones count as not yet right":""}.</p>
+  <div class="legend"><span><i style="background:var(--good)"></i>Correct first time</span><span><i style="background:var(--warn-ink);opacity:.55"></i>Got there with feedback</span></div></div><div class="panel"><h3>By learning objective</h3>`;
+  Object.entries(S).forEach(([c,o])=>{if(!o.n)return;const a=o.first/o.n*100,b=(o.done-o.first)/o.n*100;const lvl=!o.done&&o.first===0&&!o.revisit.length?"Not started yet":o.first/o.n>=0.8?"Secure":o.first/o.n>=0.5?"Getting there":"Revisit";
+    const links=o.revisit.map(n=>{const z=zoneOf(n);return z?`<button type="button" class="btn small" data-qzgo="${z}">Q${n}</button>`:"Q"+n}).join(" ");
+    h+=`<div class="catrow"><b>${META.cats[c]}</b><span class="mono">${o.first}/${o.n} · ${lvl}</span><div class="catbar" role="img" aria-label="${o.first} of ${o.n} correct first time"><i class="a" style="width:${a}%"></i><i class="b" style="width:${Math.max(0,b)}%"></i></div>${o.first<o.n&&(o.done||o.revisit.length)?`<p class="hint" style="grid-column:1/-1">${META.advice[c]}</p>${links?`<div class="tools" style="grid-column:1/-1"><span class="hint">Look again at:</span>${links}</div>`:""}`:""}</div>`});
+  h+=`</div><div class="panel"><h3>Keep a copy</h3><p class="hint">Nothing is saved when you leave this page.</p><div class="tools"><button type="button" class="btn primary" id="qz-copy">Copy my self-check results</button><button type="button" class="btn" id="qz-restart">Clear my self-check answers</button><span class="hint" id="qz-copyMsg" role="status"></span></div><textarea id="qz-summary" readonly aria-label="Self-check results" style="width:100%;min-height:140px;font-family:var(--f-mono);font-size:13px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px">${esc(summary())}</textarea><div class="msg-e" id="qz-restartConfirm" hidden><p><b>Clear all your self-check answers?</b></p><div class="tools" style="margin-top:8px"><button type="button" class="btn primary" id="qz-restartYes">Yes, clear them</button><button type="button" class="btn" id="qz-restartNo">Cancel</button></div></div></div>`;
+  el.innerHTML=h;if(fid&&fid.startsWith("qz-")){const x=document.getElementById(fid);if(x)x.focus()}}
+function updateProg(){const el=$("#qzProg");if(!el)return;const done=ALL.filter(q=>st(q).done).length;el.textContent=`Self-check ${done}/${ALL.length}`}
+window.QZ={zoneDone:z=>{const zz=document.querySelector(`[data-zone="${z}"]`);if(!zz)return true;return zz.dataset.qids.split(",").map(x=>x.trim()).every(id=>Q(id)&&st(Q(id)).done)},summary,count:()=>ALL.length};
+ZONES.forEach(renderZone);updateProg();renderResults();
+})();
+
+</script>
 <script>
 document.documentElement.lang="en-GB";
 /* ======================================================================
@@ -1320,9 +1656,10 @@ const TASKS={
   float:[{id:"f-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"f-rev",t:"Review the runs. Exclude any you don't trust and give a reason",tables:["float"]},{id:"f-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.float},{id:"f-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.float)}],
   slope:[{id:"sl-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"sl-rev",t:"Review the staff readings. Exclude any you don't trust and give a reason",tables:["up","down"]},{id:"sl-n",t:"Choose Manning's n for this reach",auto:()=>DS().p.nType!=null},{id:"sl-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.slope},{id:"sl-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.slope)}],
   dil:[{id:"d-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"d-cal",t:"Review the calibration points and the fitted line",tables:["cal"]},{id:"d-ser",t:"Set the background window and review the EC readings",tables:["dil"]},{id:"d-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.dil},{id:"d-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.dil)}],
-  compare:[{id:"c-chart",t:"Compare the four estimates and what each range means"},{id:"c-rate",t:"Rate each method on all five criteria",auto:()=>ratingCount()===20},{id:"c-scen",t:"Answer the four scenarios",auto:()=>Object.keys(S.A.quiz).length===4},{id:"c-staff",t:"Compare your ratings with the staff view",auto:()=>!!S.A.staff}],
+  compare:[{id:"c-chart",t:"Compare the four estimates and what each range means"},{id:"c-rate",t:"Rate each method on all five criteria",auto:()=>ratingCount()===20},{id:"c-staff",t:"Compare your ratings with the staff view",auto:()=>!!S.A.staff}],
   reflect:[{id:"r-q",t:"Answer all four questions",auto:()=>REFL.every(([k])=>filled(S.A.refl[k]))},{id:"r-copy",t:"Copy your summary somewhere safe",auto:()=>!!S.A.copied}]
 };
+[["expert","expert"],["survey","survey"],["float","float"],["slope","slope"],["dil","dil"],["compare","compare"]].forEach(([k,z])=>TASKS[k].push({id:"qz-"+k,t:"Answer the self-check questions on this step",auto:()=>typeof QZ!=="undefined"&&QZ.zoneDone(z)}));
 const modeNow=()=>S.mode||"remote";
 const tasksFor=k=>TASKS[k].filter(t=>!t.mode||t.mode===modeNow());
 function taskState(t){if(t.auto)return {done:!!t.auto()};const ticked=!!S.A.ticks[t.id];let miss=0;if(t.tables)t.tables.forEach(k=>DS()[k].forEach(r=>{if(!r.inc&&!r.why)miss++}));return {done:ticked&&!miss,ticked,miss}}
@@ -1413,7 +1750,7 @@ function renderMatrix(){const fid=document.activeElement&&document.activeElement
   if(fid){const x=document.getElementById(fid);if(x)x.focus()}}
 document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.rm){(S.A.ratings[t.dataset.rm]=S.A.ratings[t.dataset.rm]||{})[t.dataset.rj]=t.value;save();update()}});
 $("#revealRef").addEventListener("click",()=>{S.A.staff=!S.A.staff;save();renderMatrix();update();$("#revealRef").focus()});
-function renderScen(){$("#scen").innerHTML=SCEN.map((s,i)=>{const pick=S.A.quiz[i];return `<div class="scen" role="group" aria-labelledby="sq-${i}"><p id="sq-${i}"><b>${i+1}.</b> ${s.q}</p><div class="opts2">${METHODS.map(M=>`<button type="button" class="btn" data-sq="${i}" data-sm="${M.k}" aria-pressed="${pick===M.k}">${M.name}</button>`).join("")}</div>${pick?`<p class="fb ${pick===s.a?"ok":"no"}" role="status"><b>${pick===s.a?"Good choice.":"Not the best fit."}</b> ${s.fb[pick]}</p>`:""}</div>`}).join("")}
+function renderScen(){if(!$("#scen"))return;$("#scen").innerHTML=SCEN.map((s,i)=>{const pick=S.A.quiz[i];return `<div class="scen" role="group" aria-labelledby="sq-${i}"><p id="sq-${i}"><b>${i+1}.</b> ${s.q}</p><div class="opts2">${METHODS.map(M=>`<button type="button" class="btn" data-sq="${i}" data-sm="${M.k}" aria-pressed="${pick===M.k}">${M.name}</button>`).join("")}</div>${pick?`<p class="fb ${pick===s.a?"ok":"no"}" role="status"><b>${pick===s.a?"Good choice.":"Not the best fit."}</b> ${s.fb[pick]}</p>`:""}</div>`}).join("")}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-sq]");if(!b)return;S.A.quiz[b.dataset.sq]=b.dataset.sm;save();renderScen();update();const x=document.querySelector(`[data-sq="${b.dataset.sq}"][data-sm="${b.dataset.sm}"]`);if(x)x.focus()});
 
 /* ======================================================================
@@ -1437,10 +1774,10 @@ function updateReport(){if(!R)return;const L=[],A=S.A,p=DS().p;
   if(!ex.length)L.push("  none");ex.forEach(([l,x])=>L.push(`  ${l}: ${x.join("; ")}`));
   L.push("");L.push("STEP QUESTIONS");
   Object.keys(INTERP).forEach(m=>{L.push(`  ${STEPS.find(s=>s.k===m).name}: ${INTERP[m]}`);L.push("    "+((A.interp[m]||"").trim().replace(/\n/g,"\n    ")||"—"))});
-  L.push("");L.push("SCENARIOS");SCEN.forEach((s,i)=>{const pk=A.quiz[i];L.push(`  ${i+1}. ${pk?mlabel(pk)+(pk===s.a?" (matches staff answer)":` (staff answer: ${mlabel(s.a)})`):"not answered"}`)});
+  
   L.push("");L.push("MY RATINGS (accuracy, complexity, equipment, cost, safety risk)");METHODS.forEach(M=>L.push(`  ${M.name}: ${CRIT.map((c,j)=>(A.ratings[M.k]||{})[j]||"—").join(", ")}`));
   L.push("");L.push("REFLECTIONS");REFL.forEach(([k,t])=>{L.push(`  ${t}:`);L.push("    "+((A.refl[k]||"").trim().replace(/\n/g,"\n    ")||"—"))});
-  $("#report").value=L.join("\n")}
+  if(typeof QZ!=="undefined"){L.push("");L.push(QZ.summary())}$("#report").value=L.join("\n")}
 $("#copyRep").addEventListener("click",()=>copyText($("#report"),$("#copyMsg"),()=>{S.A.copied=true;save();updateTasks()}));
 $("#report").addEventListener("copy",()=>{S.A.copied=true;save();updateTasks()});
 $("#resetAll").addEventListener("click",()=>{$("#resetConfirm").hidden=false;$("#resetYes").focus()});
