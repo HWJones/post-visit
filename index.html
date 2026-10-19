@@ -351,7 +351,7 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
   <header class="hero">
     <div class="eyebrow">Hydrology Field Work · CIVE7XXXX · Post-visit activity</div>
     <h1 tabindex="-1">Measuring river flow on the Derwent</h1>
-    <p class="lede">Turn the field readings into four estimates of discharge: clean the data, do the calculations, then work out why the answers disagree and which method you would trust.</p>
+    <p class="lede">Turn the field readings into four estimates of discharge: type up or load the data, clean it and do the calculations for each method.</p>
   </header>
   <div class="taskbox"><h3>To do on this step <span class="count" id="tc-brief"></span></h3><ol class="tasks" id="tasks-brief"></ol></div>
   <div class="panel">
@@ -360,7 +360,7 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
       <button type="button" class="modecard" data-mode="field" aria-pressed="false"><b>I attended the field day</b><span>Type in your group's readings from your notebook, then clean and analyse them. The tables start empty.</span></button>
       <button type="button" class="modecard" data-mode="remote" aria-pressed="false"><b>I couldn't attend</b><span>Use the readings a previous group took at the same reach, with their field notes and diagrams of how each method was set up.</span></button>
     </div>
-    <p class="hint"><b>This page doesn't save anything.</b> If you reload or leave it, your work is gone. Try to finish in one sitting, back up typed-in readings with <i>Back up / share</i>, and copy your summary at Step 8. Haven't done the pre-visit guide yet? Do that first.</p>
+    <p class="hint"><b>This page doesn't save anything.</b> If you reload or leave it, your work is gone. Try to finish in one sitting, back up typed-in readings with <i>Back up / share</i>, and copy your summary on the last step. Haven't done the pre-visit guide yet? Do that first.</p>
   </div>
 
   <div class="grid2">
@@ -414,7 +414,7 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
 <!-- ================= STEP 2: EXPERT ================= -->
 <section class="step" data-step="expert" hidden>
   <div class="method-head" style="--mc:var(--m-expert)">
-    <div class="eyebrow">Step 2 of 8 · Method 1 of 4</div>
+    <div class="eyebrow">Step 2 of 7 · Method 1 of 4</div>
     <h2 tabindex="-1">Expert estimation</h2>
     <p>Experienced hydrologists can often estimate <button type="button" class="term" data-term="discharge">discharge</button> to within a factor of two just by looking. Make your own estimate <b>before</b> you see anyone else's.</p>
   </div>
@@ -452,14 +452,12 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
       </div>
     </div>
   </div>
-  <div data-qids="m1,m7" data-zone="expert"></div>
-  <div id="iq-expert"></div>
 </section>
 
 <!-- ================= STEP 3: SURVEY ================= -->
 <section class="step" data-step="survey" hidden>
   <div class="method-head" style="--mc:var(--river)">
-    <div class="eyebrow">Step 3 of 8 · Shared measurement</div>
+    <div class="eyebrow">Step 3 of 7 · Shared measurement</div>
     <h2 tabindex="-1">Channel survey</h2>
     <p>Float gauging and the slope-area method both need the channel's cross-sectional area <span class="mono">A</span>. Slope-area also needs the <button type="button" class="term" data-term="wetted">wetted perimeter</button> <span class="mono">P</span>. You get both by measuring depths across three <button type="button" class="term" data-term="transect">transects</button>.</p>
   </div>
@@ -505,14 +503,13 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
     <p class="hint">Area uses the <button type="button" class="term" data-term="trap">trapezium rule</button> between neighbouring depths: <span class="mono">A = Σ ½(dᵢ + dᵢ₊₁)(xᵢ₊₁ − xᵢ)</span>. Wetted perimeter adds up the sloping bed lengths: <span class="mono">P = Σ √(Δx² + Δd²)</span>.</p>
     <p class="chip" id="xsWhatIf"></p>
   </div>
-  <div data-qids="k2,k6" data-zone="survey"></div>
-  <div id="iq-survey"></div>
+  <div data-qids="k2,k6,k5" data-zone="survey"></div>
 </section>
 
 <!-- ================= STEP 4: FLOAT ================= -->
 <section class="step" data-step="float" hidden>
   <div class="method-head" style="--mc:var(--m-float)">
-    <div class="eyebrow">Step 4 of 8 · Method 2 of 4</div>
+    <div class="eyebrow">Step 4 of 7 · Method 2 of 4</div>
     <h2 tabindex="-1">Float gauging</h2>
     <p>Time a float over a measured reach to get the <b>surface</b> velocity. The surface moves faster than the water as a whole, so multiply by a <button type="button" class="term" data-term="kcoef">velocity coefficient k</button>, usually 0.8–0.9.</p>
   </div>
@@ -564,13 +561,12 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
   </div></details>
   <div id="res-float"></div>
   <div data-qids="k1,k7,n1,n2,u2,u6" data-zone="float"></div>
-  <div id="iq-float"></div>
 </section>
 
 <!-- ================= STEP 5: SLOPE ================= -->
 <section class="step" data-step="slope" hidden>
   <div class="method-head" style="--mc:var(--m-slope)">
-    <div class="eyebrow">Step 5 of 8 · Method 3 of 4</div>
+    <div class="eyebrow">Step 5 of 7 · Method 3 of 4</div>
     <h2 tabindex="-1">Slope-area method</h2>
     <p>No velocity measurement at all. Manning's equation predicts the flow from the channel's shape, the <button type="button" class="term" data-term="slope">water-surface slope</button> and the bed's roughness, <button type="button" class="term" data-term="manning">Manning's n</button>. It's also how flood peaks are estimated after the event, from debris lines.</p>
   </div>
@@ -625,14 +621,13 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
     <button type="button" class="dep" data-go="survey" id="dep-slope"></button>
   </div>
   <div id="res-slope"></div>
-  <div data-qids="k3,n5,u1,m5,m3" data-zone="slope"></div>
-  <div id="iq-slope"></div>
+  <div data-qids="k3,n5,u1" data-zone="slope"></div>
 </section>
 
 <!-- ================= STEP 6: DILUTION ================= -->
 <section class="step" data-step="dil" hidden>
   <div class="method-head" style="--mc:var(--m-dil)">
-    <div class="eyebrow">Step 6 of 8 · Method 4 of 4</div>
+    <div class="eyebrow">Step 6 of 7 · Method 4 of 4</div>
     <h2 tabindex="-1">Dilution gauging (salt slug)</h2>
     <p>Tip a known mass of dissolved salt into the stream. Downstream, a meter logs the <button type="button" class="term" data-term="ec">electrical conductivity (EC)</button> as the salt cloud passes. More water dilutes the salt more, so a smaller area under the curve means a bigger flow.</p>
   </div>
@@ -685,52 +680,32 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
     <p class="chip" id="chip-dil" aria-live="polite"></p>
   </div>
   <div id="res-dil"></div>
-  <div data-qids="k4,n3,n4,u3,u4,u5,m2,m6" data-zone="dil"></div>
-  <div id="iq-dil"></div>
+  <div data-qids="k4,n3,n4,u3,u4,u5" data-zone="dil"></div>
 </section>
 
-<!-- ================= STEP 7: COMPARE ================= -->
+<!-- ================= STEP 7: RESULTS ================= -->
 <section class="step" data-step="compare" hidden>
   <div class="method-head">
-    <div class="eyebrow">Step 7 of 8 · Compare</div>
-    <h2 tabindex="-1">Four answers, one river</h2>
-    <p>There's no "true" value, only four estimates with different kinds of uncertainty. Overlapping ranges mean the methods are consistent. A gap means an assumption has failed somewhere.</p>
+    <div class="eyebrow">Step 7 of 7 · Results</div>
+    <h2 tabindex="-1">Your results</h2>
+    <p>Your four discharge estimates and the readings you excluded, collected in one place. Comparing and evaluating the methods is up to you.</p>
   </div>
   <div class="taskbox"><h3>To do on this step <span class="count" id="tc-compare"></span></h3><ol class="tasks" id="tasks-compare"></ol></div>
   <div class="panel">
-    <figure><svg class="chart" id="cCmp" role="img" aria-describedby="cap-cmp"></svg><figcaption id="cap-cmp"></figcaption></figure>
-    <p class="hint"><b>Read the ranges carefully.</b> Each bar comes from a different source of uncertainty, so a long bar doesn't always mean a worse method. The expert bar (dashed) shows how much people's guesses differed, not measurement error.</p>
+    <h3>Your discharge estimates</h3>
     <div class="tbl-wrap stackwrap"><table class="rt stack" id="cmpTbl"></table></div>
   </div>
-  <div class="panel">
-    <h3>Rate each method</h3>
-    <p class="hint">Give your own rating in every box. The staff view unlocks once all 20 are filled in.</p>
-    <div class="tbl-wrap stackwrap"><table class="rt stack" id="matrix"></table></div>
-    <div class="tools"><button type="button" class="btn" id="revealRef" disabled>Show staff view</button><span class="hint" id="rateCount" aria-live="polite"></span></div>
-  </div>
-  <div data-qids="k5,u7,u8,m4,m8" data-zone="compare"></div>
-</section>
-
-<!-- ================= STEP 8: REFLECT ================= -->
-<section class="step" data-step="reflect" hidden>
-  <div class="method-head">
-    <div class="eyebrow">Step 8 of 8 · Reflect</div>
-    <h2 tabindex="-1">Reflection and summary</h2>
-    <p>Write short, specific answers that refer to your own numbers. Your answers to each step's question are already in the summary below.</p>
-  </div>
-  <div class="taskbox"><h3>To do on this step <span class="count" id="tc-reflect"></span></h3><ol class="tasks" id="tasks-reflect"></ol></div>
-  <div class="grid2" id="refl"></div>
   <div class="method-head"><h3>Your self-check results</h3><p class="hint">How you did on the "Check your understanding" questions in each step. Your first attempt counts.</p></div>
   <div id="qz-results"></div>
   <div class="panel">
     <h3>Your summary</h3>
-    <p class="hint">Everything in one block: results, exclusions and why, and all your answers. This page doesn't save anything. If you reload it or leave it, your work is gone, so copy the summary into your report or group plan before you go.</p>
+    <p class="hint">Your results, key inputs and the readings you excluded, with your reasons. This page doesn't save anything, so copy it before you leave.</p>
     <div class="tools"><button type="button" class="btn primary" id="copyRep">Copy summary</button><span class="hint" id="copyMsg" role="status"></span></div>
     <textarea id="report" readonly aria-label="Summary text"></textarea>
   </div>
   <div class="panel">
     <h3>Start again</h3>
-    <p class="hint">Clears your estimate, exclusions, ratings and answers. Readings you typed in from your notebook are kept.</p>
+    <p class="hint">Clears your estimate and exclusions. Readings you typed in from your notebook are kept.</p>
     <div class="tools"><button type="button" class="btn" id="resetAll">Reset my work</button></div>
     <div class="msg-e" id="resetConfirm" hidden><p><b>Reset all your work?</b> You can't undo this.</p><div class="tools" style="margin-top:8px"><button type="button" class="btn primary" id="resetYes">Yes, reset</button><button type="button" class="btn" id="resetNo">Cancel</button></div></div>
   </div>
@@ -768,7 +743,7 @@ const tbl=(cols,rows)=>`<div class="tbl-wrap" style="max-height:none"><table cla
 
 const META={
   title:"Derwent flow gauging: post-visit self-check",
-  cats:{process:"Processing and cleaning data",unc:"Uncertainty, error and bias",choose:"Evaluating and choosing methods"},
+  cats:{process:"Processing and cleaning data",unc:"Uncertainty, error and bias"},
   advice:{
     process:"Compare your exclusions and calculations with the worked steps in each step of this activity. Then use \"Try another version\" here until you get one right first time.",
     unc:"Revisit the Compare step, and think about which errors push Q consistently one way (bias) and which just add scatter.",
@@ -904,58 +879,8 @@ const QUESTIONS=[
  ["Bias from releasing every float in the centre",0,"More centre-only runs repeat the same bias. Release across the channel instead."],
  ["Error from choosing the wrong k",0,"k applies equally to every run, so more runs don't change it."],
  ["Error in the reach length",0,"A wrong L affects every run the same way."]]},
-{id:"u7",sec:"unc",cat:"unc",type:"mcq",stem:"Float gauging gives 0.74 m³/s (range 0.69–0.80) and dilution gives 0.78 m³/s (range 0.73–0.84). What's the best conclusion?",opts:[
- ["They agree within their uncertainty, which increases confidence, but doesn't prove either is right",1,"Overlapping ranges mean the difference could be due to uncertainty alone. Both could still share a bias."],
- ["Dilution is right because it's higher",0,"Neither method is the 'true' value. Higher doesn't mean more accurate."],
- ["They disagree, so one must be wrong",0,"The ranges overlap, so the difference is within the expected uncertainty."],
- ["Average them and the uncertainty disappears",0,"Averaging can help, but it doesn't remove a bias the methods share."]]},
-{id:"u8",sec:"unc",cat:"unc",type:"mcq",stem:"Float gauging and slope-area both give values about 20% higher than dilution gauging. Which shared input should you check first?",opts:[
- ["The cross-sectional area from the channel survey, because both methods use it",1,"An error in Ā affects float gauging and slope-area in the same direction. Dilution doesn't use the area at all."],
- ["The salt mass",0,"Salt mass only affects dilution gauging."],
- ["The staff readings",0,"Those only affect slope-area, not float gauging."],
- ["The float times",0,"Those only affect float gauging."]]},
 
 /* ---------------- choosing ---------------- */
-{id:"m1",sec:"choose",cat:"choose",type:"mcq",stem:"You have 20 minutes at a remote upland stream to decide whether it's worth coming back with gauging kit. Which method?",opts:[
- ["Expert estimation",1,"An order-of-magnitude answer is all this decision needs, and it takes minutes with no kit."],
- ["Float gauging",0,"Possible, but you'd also need a cross-section survey: more than this decision needs."],
- ["Slope-area",0,"Far too much survey work for a go/no-go decision."],
- ["Dilution gauging",0,"Salt, a calibrated meter and mixing time: more than this decision needs."]]},
-{id:"m2",sec:"choose",cat:"choose",type:"mcq",stem:"A steep, boulder-strewn beck where depths change every half metre. Which method?",opts:[
- ["Dilution gauging",1,"The turbulence that defeats velocity-area methods gives the full mixing dilution gauging relies on."],
- ["Float gauging",0,"Floats snag and take odd paths, and the uneven bed makes the area very uncertain."],
- ["Slope-area",0,"The flow isn't uniform, and n is very uncertain in boulder beds."],
- ["Expert estimation",0,"Fine for a first guess, but this stream needs a measurement."]]},
-{id:"m3",sec:"choose",cat:"choose",type:"mcq",stem:"You need the peak flow of last week's flood, using debris lines and surveyed cross-sections. Which method?",opts:[
- ["Slope-area",1,"Only the channel shape and high-water marks remain. Manning's equation is the standard indirect method."],
- ["Float gauging",0,"The flood has passed, so there's nothing to time."],
- ["Dilution gauging",0,"You can't add salt to an event that's over."],
- ["Expert estimation",0,"Eyewitness guesses help, but slope-area gives a defensible number."]]},
-{id:"m4",sec:"choose",cat:"choose",type:"mcq",stem:"A wide, deep lowland river in flood, gauged from a road bridge with little kit and no safe wading. Which method?",opts:[
- ["Float gauging",1,"Floats can be dropped and timed from the bridge, and bridge drawings give the area. Choose k carefully."],
- ["Dilution gauging",0,"The salt needed for a large flow is impractical, and mixing would take a very long distance."],
- ["Slope-area",0,"You can't survey safely in flood, and the bridge disturbs the flow."],
- ["Expert estimation",0,"A useful check, but you can do better from the bridge."]]},
-{id:"m5",sec:"choose",cat:"choose",type:"mcq",stem:"Which method depends most on a subjective judgement that different people might make differently?",opts:[
- ["Slope-area, through the choice of Manning's n",1,"n is chosen from a description, and a plausible range can change Q by 20–40%."],
- ["Dilution gauging",0,"Its main judgement is the background window, and that usually changes Q much less."],
- ["Float gauging",0,"k is a judgement too, but its usual range (0.8–0.9) changes Q by only about 12%."],
- ["The channel survey",0,"Depths and distances are measured, not judged."]]},
-{id:"m6",sec:"choose",cat:"choose",type:"mcq",stem:"Why is dilution gauging rarely used on large rivers?",opts:[
- ["The salt needed rises with the discharge, and full mixing takes a very long distance",1,"A river 100 times bigger needs about 100 times more salt, and mixing lengths can run to kilometres."],
- ["EC meters don't work in deep water",0,"They work fine. The problem is the salt mass and the mixing."],
- ["Large rivers have no background EC",0,"All rivers have a background EC."],
- ["It's less accurate in any river",0,"In small turbulent streams it's often the most accurate method."]]},
-{id:"m7",sec:"choose",cat:"choose",type:"mcq",stem:"Which method has the lowest equipment needs and cost, but also the lowest accuracy?",opts:[
- ["Expert estimation",1,"It needs nothing but a trained eye. That's ideal for quick checks, but it's within a factor of two at best."],
- ["Float gauging",0,"Cheap and simple, but it still needs a survey, so it's more accurate than an estimate by eye."],
- ["Slope-area",0,"It needs a level, staff and survey kit."],
- ["Dilution gauging",0,"It needs salt, scales and a calibrated EC meter."]]},
-{id:"m8",sec:"choose",cat:"choose",type:"mcq",stem:"For long-term monitoring of a small, rocky upland stream, which combination gives the best independent check?",opts:[
- ["Dilution gauging, checked occasionally with a velocity-area method",1,"They use different measurements and assumptions, so agreement is meaningful, and dilution suits rocky turbulent streams."],
- ["Float gauging checked with slope-area",0,"Both use the same surveyed area, so an error there affects both and they can agree while both being wrong."],
- ["Expert estimation alone",0,"Too uncertain for monitoring."],
- ["Slope-area alone, with the highest n",0,"One method with a deliberately extreme n gives no check at all."]]}
 ];
 
 
@@ -1036,7 +961,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id&&e.targe
 
 function stats(){const out={};Object.keys(META.cats).forEach(c=>out[c]={n:0,first:0,done:0,revisit:[]});
   ALL.forEach(q=>{const s=st(q),o=out[q.cat];o.n++;if(s.first)o.first++;if(s.done)o.done++;if(s.first===false)o.revisit.push(qNum(q))});return out}
-function summary(){const S=stats(),first=ALL.filter(q=>st(q).first).length,done=ALL.filter(q=>st(q).done).length;const L=[`SELF-CHECK: ${first} of ${ALL.length} correct at the first attempt (${done} answered)`];Object.entries(S).forEach(([c,o])=>L.push(`  ${META.cats[c]}: ${o.first}/${o.n} first time${o.revisit.length?` · revisit Q${o.revisit.join(", Q")}`:""}`));return L.join("\n")}
+function summary(){const S=stats(),first=ALL.filter(q=>st(q).first).length,done=ALL.filter(q=>st(q).done).length;const L=[`SELF-CHECK: ${first} of ${ALL.length} correct at the first attempt (${done} answered)`];Object.entries(S).filter(([c,o])=>o.n).forEach(([c,o])=>L.push(`  ${META.cats[c]}: ${o.first}/${o.n} first time${o.revisit.length?` · revisit Q${o.revisit.join(", Q")}`:""}`));return L.join("\n")}
 function zoneOf(n){const id=ORDER[n-1];const z=ZONES.find(z=>z.dataset.qids.split(",").map(x=>x.trim()).includes(id));return z?z.dataset.zone:null}
 function renderResults(){
   const el=$("#qz-results");if(!el)return;const fid=document.activeElement&&document.activeElement.id;
@@ -1129,36 +1054,15 @@ const TERMS={
   level:["Auto-level and staff","A levelled surveying telescope read against a graduated staff. A bigger staff reading means the foot of the staff is lower."],
   btc:["Breakthrough curve","The rise and fall in EC at the probe as the salt cloud passes."]
 };
-const INTERP={
-  expert:"Compare your locked-in estimate with the group median. Which did you misjudge most: width, depth or speed? Did anything bias the group's guesses?",
-  survey:"Which transect best represents the reach, and why? What would happen to Q if you only surveyed one?",
-  float:"Which matters most here: the choice of k, timing error or where the floats were released? Could any of them push Q consistently too high or too low?",
-  slope:"How much does Q change across the n range? What does that tell you about relying on this method?",
-  dil:"What has to be true about mixing for this method to work, and how could you check it on site?"
-};
-const REFL=[
-  ["clean","Errors and anomalies","Which readings did you exclude, and why? Which errors were random (scatter) and which were systematic (pushing results one way)?"],
-  ["differ","Why the estimates differ","Why do your four estimates differ? Refer to measurement uncertainty, each method's assumptions (k, n, full mixing, uniform flow) and the sampling design."],
-  ["bias","Bias","Where could bias have entered the data: who measured, where floats were released, how n was chosen, or what people saw before they estimated?"],
-  ["realworld","Choosing a method","Which method, or combination of methods, would you use to monitor a similar stream long term, and why? Consider accuracy, complexity, equipment, cost, safety and river conditions."]
-];
-const SCEN=[
-  {q:"You have 20 minutes at a remote upland stream to decide whether it's worth coming back with gauging kit.",a:"expert",fb:{expert:"A trained eye gives an order-of-magnitude answer in minutes, and that's all this decision needs.",float:"Possible, but you'd also need a cross-section survey. That's more effort than the decision needs.",slope:"Far too much survey work for a yes/no decision.",dil:"You'd need salt, a calibrated EC meter and time for mixing. More than this decision needs."}},
-  {q:"A steep, boulder-strewn beck where depths change every half metre and a current meter can't be held steady.",a:"dil",fb:{dil:"The turbulence that defeats velocity-area methods is exactly what gives dilution gauging the full mixing it relies on.",float:"Floats snag and take odd paths here, and the uneven bed makes the area very uncertain.",slope:"The flow isn't uniform, and n is very uncertain in boulder beds.",expert:"Fine for a first guess, but this stream needs a measurement."}},
-  {q:"Estimating the peak flow of last week's flood, using debris lines and surveyed cross-sections.",a:"slope",fb:{slope:"The flood has gone, so only the channel shape and high-water marks are left. Manning's equation is the standard indirect method.",float:"The flood has passed, so there's nothing left to time.",dil:"You can't add salt to an event that's over.",expert:"Eyewitness guesses help, but slope-area gives a defensible number."}},
-  {q:"A wide, deep lowland river in flood, gauged from a road bridge with little kit and no safe wading.",a:"float",fb:{float:"Floats can be dropped and timed from the bridge, and bridge drawings or a weighted line give the area. Choose k carefully.",dil:"The salt needed for a large flow is impractical, and it would take a very long distance to mix.",slope:"You can't survey safely in flood, and the bridge disturbs the flow.",expert:"A useful check, but you can do better from the bridge."}}
-];
-const CRIT=["Accuracy","Complexity","Equipment needed","Cost","Safety risk"];
-const REF={
-  expert:{v:["Low","Low","Low","Low","Low"],best:"Quick checks, sanity-checking other methods, planning a visit"},
-  float:{v:["Low–Medium","Low","Low","Low","Low–Medium"],best:"Straight, even reaches; high flows timed from a bridge; quick checks"},
-  slope:{v:["Medium (depends on n)","Medium","Medium","Medium","Medium"],best:"Estimating flood peaks after the event; reaches with steady, even flow"},
-  dil:{v:["High in turbulent flow","Medium","Medium","Low–Medium","Low"],best:"Small, steep, rocky, turbulent streams that mix well; not large rivers or reaches with slack water"}
-};
+const INTERP={};
+const REFL=[];
+const SCEN=[];
+const CRIT=[];
+const REF={};
 const STEPS=[
   {k:"brief",name:"Brief"},{k:"expert",name:"Expert estimate"},{k:"survey",name:"Channel survey"},
   {k:"float",name:"Float gauging"},{k:"slope",name:"Slope-area"},{k:"dil",name:"Dilution gauging"},
-  {k:"compare",name:"Compare"},{k:"reflect",name:"Reflect"}
+  {k:"compare",name:"Your results"}
 ];
 const TBL={
   expert:{row:"Estimate",cols:[{k:"name",l:"Who",t:"text"},{k:"q",l:"Q",u:"m³/s",min:0,max:100}]},
@@ -1651,15 +1555,15 @@ document.addEventListener("focusin",e=>{const tr=e.target.closest&&e.target.clos
    ====================================================================== */
 const TASKS={
   brief:[{id:"mode",t:"Choose which data you're using",auto:()=>!!S.mode},{id:"b-site",t:"Study the reach diagram so you know where T1, T2 and T3 are"},{id:"b-safe",t:"Have your notebook and your group's readings to hand",mode:"field"},{id:"b-remote",t:"Look at the site conditions the previous group worked in",mode:"remote"}],
-  expert:[{id:"e-in",t:"Enter your width, depth and velocity estimates",auto:()=>isN(S.A.exW)&&isN(S.A.exD)&&isN(S.A.exV)},{id:"e-lock",t:"Lock in your estimate",auto:()=>isN(S.A.exFirst)},{id:"e-rev",t:"Review the group's estimates. Exclude any you don't trust and give a reason",tables:["expert"]},{id:"e-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.expert)}],
-  survey:[{id:"s-notes",t:"Read how the survey was done and the notes on how the data were collected"},{id:"s-rev",t:"Check each profile on the chart. Exclude suspect depths and give a reason",tables:XS},{id:"s-ok",t:"All three transects give an area, with nothing left to fix",auto:()=>!!R&&R.nXS===3&&!issues("survey").E.length},{id:"s-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.survey)}],
-  float:[{id:"f-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"f-rev",t:"Review the runs. Exclude any you don't trust and give a reason",tables:["float"]},{id:"f-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.float},{id:"f-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.float)}],
-  slope:[{id:"sl-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"sl-rev",t:"Review the staff readings. Exclude any you don't trust and give a reason",tables:["up","down"]},{id:"sl-n",t:"Choose Manning's n for this reach",auto:()=>DS().p.nType!=null},{id:"sl-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.slope},{id:"sl-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.slope)}],
-  dil:[{id:"d-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"d-cal",t:"Review the calibration points and the fitted line",tables:["cal"]},{id:"d-ser",t:"Set the background window and review the EC readings",tables:["dil"]},{id:"d-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.dil},{id:"d-q",t:"Answer the question at the bottom of the page",auto:()=>filled(S.A.interp.dil)}],
-  compare:[{id:"c-chart",t:"Compare the four estimates and what each range means"},{id:"c-rate",t:"Rate each method on all five criteria",auto:()=>ratingCount()===20},{id:"c-staff",t:"Compare your ratings with the staff view",auto:()=>!!S.A.staff}],
-  reflect:[{id:"r-q",t:"Answer all four questions",auto:()=>REFL.every(([k])=>filled(S.A.refl[k]))},{id:"r-copy",t:"Copy your summary somewhere safe",auto:()=>!!S.A.copied}]
+  expert:[{id:"e-in",t:"Enter your width, depth and velocity estimates",auto:()=>isN(S.A.exW)&&isN(S.A.exD)&&isN(S.A.exV)},{id:"e-lock",t:"Lock in your estimate",auto:()=>isN(S.A.exFirst)},{id:"e-rev",t:"Review the group's estimates. Exclude any you don't trust and give a reason",tables:["expert"]}],
+  survey:[{id:"s-notes",t:"Read how the survey was done and the notes on how the data were collected"},{id:"s-rev",t:"Check each profile on the chart. Exclude suspect depths and give a reason",tables:XS},{id:"s-ok",t:"All three transects give an area, with nothing left to fix",auto:()=>!!R&&R.nXS===3&&!issues("survey").E.length}],
+  float:[{id:"f-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"f-rev",t:"Review the runs. Exclude any you don't trust and give a reason",tables:["float"]},{id:"f-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.float}],
+  slope:[{id:"sl-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"sl-rev",t:"Review the staff readings. Exclude any you don't trust and give a reason",tables:["up","down"]},{id:"sl-n",t:"Choose Manning's n for this reach",auto:()=>DS().p.nType!=null},{id:"sl-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.slope}],
+  dil:[{id:"d-notes",t:"Recap how it works and read the notes on how the data were collected"},{id:"d-cal",t:"Review the calibration points and the fitted line",tables:["cal"]},{id:"d-ser",t:"Set the background window and review the EC readings",tables:["dil"]},{id:"d-calc",t:"Work out Q yourself and check it",auto:()=>!!Wk().revealed.dil}],
+  compare:[{id:"c-res",t:"Work out Q for all four methods",auto:()=>isN(S.A.exFirst)&&["float","slope","dil"].every(m=>!!Wk().revealed[m])},{id:"r-copy",t:"Copy your summary somewhere safe",auto:()=>!!S.A.copied}],
+  reflect:[]
 };
-[["expert","expert"],["survey","survey"],["float","float"],["slope","slope"],["dil","dil"],["compare","compare"]].forEach(([k,z])=>TASKS[k].push({id:"qz-"+k,t:"Answer the self-check questions on this step",auto:()=>typeof QZ!=="undefined"&&QZ.zoneDone(z)}));
+[["survey","survey"],["float","float"],["slope","slope"],["dil","dil"]].forEach(([k,z])=>TASKS[k].push({id:"qz-"+k,t:"Answer the self-check questions on this step",auto:()=>typeof QZ!=="undefined"&&QZ.zoneDone(z)}));
 const modeNow=()=>S.mode||"remote";
 const tasksFor=k=>TASKS[k].filter(t=>!t.mode||t.mode===modeNow());
 function taskState(t){if(t.auto)return {done:!!t.auto()};const ticked=!!S.A.ticks[t.id];let miss=0;if(t.tables)t.tables.forEach(k=>DS()[k].forEach(r=>{if(!r.inc&&!r.why)miss++}));return {done:ticked&&!miss,ticked,miss}}
@@ -1680,11 +1584,11 @@ function renderRail(){const idx=STEPS.findIndex(s=>s.k===S.step);const done=STEP
   const hadFocus=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#rail");
   $("#rail").innerHTML=STEPS.map((s,i)=>{const d=stepDone(s.k);return `<li><button type="button" class="${d?"done":""}" data-go="${s.k}" ${S.step===s.k?'aria-current="step"':""}><span class="n" aria-hidden="true">${d?"✓":i+1}</span>${s.name}<span class="sr">${d?", done":""}</span></button></li>`}).join("");
   const cur=$("#rail [aria-current]");if(cur){const rl=$("#rail");rl.scrollLeft=cur.offsetLeft-rl.clientWidth/2+cur.offsetWidth/2;if(hadFocus)cur.focus()}
-  $("#stepSel").innerHTML=STEPS.map((s,i)=>`<option value="${s.k}" ${S.step===s.k?"selected":""}>${i+1} of 8 · ${s.name}${stepDone(s.k)?" (done)":""}</option>`).join("");
+  $("#stepSel").innerHTML=STEPS.map((s,i)=>`<option value="${s.k}" ${S.step===s.k?"selected":""}>${i+1} of ${STEPS.length} · ${s.name}${stepDone(s.k)?" (done)":""}</option>`).join("");
   $("#stPrev").disabled=idx===0;$("#stNext").disabled=idx===STEPS.length-1;$("#navBack").disabled=idx===0;
   const nx=STEPS[idx+1];$("#navNext").hidden=!nx;if(nx)$("#navNext").textContent=`Next: ${nx.name} →`;
   const left=tasksFor(S.step).filter(t=>!taskState(t).done).length;
-  $("#navWhere").textContent=`Step ${idx+1} of 8 · ${done} of 8 steps done${left?` · ${left} task${left>1?"s":""} left on this step`:" · this step is done"}`;
+  $("#navWhere").textContent=`Step ${idx+1} of ${STEPS.length} · ${done} of ${STEPS.length} steps done${left?` · ${left} task${left>1?"s":""} left on this step`:" · this step is done"}`;
 }
 function go(k,focus=true){if(!STEPS.some(s=>s.k===k))k="brief";S.step=k;document.querySelectorAll("section.step").forEach(s=>s.hidden=s.dataset.step!==k);save();renderRail();window.scrollTo(0,0);drawVisible();
   if(focus){const h=document.querySelector(`section[data-step="${k}"] h1, section[data-step="${k}"] h2`);if(h)h.focus({preventScroll:true})}}
@@ -1740,23 +1644,19 @@ function renderInterp(){Object.keys(INTERP).forEach(m=>{const el=document.getEle
    COMPARE
    ====================================================================== */
 const ratingCount=()=>METHODS.reduce((s,M)=>s+CRIT.filter((c,j)=>(S.A.ratings[M.k]||{})[j]).length,0);
-function updateCompare(){
-  setHTML("cmpTbl",`<thead><tr><th>Method</th><th>Q (m³/s)</th><th>Range (m³/s)</th><th>Range comes from</th><th>Before cleaning</th></tr></thead><tbody>${METHODS.map(M=>{const r=R[M.k],ok=rev(M.k)&&isN(r.Q);
-    return `<tr><td data-label="Method" class="full"><b>${M.name}</b></td><td data-label="Q (m³/s)" class="mono">${ok?f(r.Q,3):`<button type="button" class="btn small" data-go="${M.step}">Finish Step ${M.n}</button>`}</td><td data-label="Range (m³/s)" class="mono">${ok?`${f(r.lo,2)} – ${f(r.hi,2)}`:"—"}</td><td data-label="Range comes from">${BASIS[M.k]}</td><td data-label="Before cleaning" class="mono">${ok?f(Rr[M.k].Q,3):"—"}</td></tr>`}).join("")}</tbody>`);
-  const n=ratingCount();$("#rateCount").textContent=S.A.staff?"Staff view shown below each of your ratings.":`${n} of 20 rated`;$("#revealRef").disabled=n<20&&!S.A.staff;$("#revealRef").textContent=S.A.staff?"Hide staff view":"Show staff view";
-}
-function renderMatrix(){const fid=document.activeElement&&document.activeElement.id;
+function updateCompare(){setHTML("cmpTbl",`<thead><tr><th>Method</th><th>Q (m³/s)</th><th>Range (m³/s)</th></tr></thead><tbody>${METHODS.map(M=>{const r=R[M.k],ok=rev(M.k)&&isN(r.Q);return `<tr><td data-label="Method" class="full"><b>${M.name}</b></td><td data-label="Q (m³/s)" class="mono">${ok?f(r.Q,3):`<button type="button" class="btn small" data-go="${M.step}">Finish Step ${M.n}</button>`}</td><td data-label="Range (m³/s)" class="mono">${ok?`${f(r.lo,2)} – ${f(r.hi,2)}`:"—"}</td></tr>`}).join("")}</tbody>`)}
+function renderMatrix(){if(!$("#matrix"))return;const fid=document.activeElement&&document.activeElement.id;
   $("#matrix").innerHTML=`<thead><tr><th>Method</th>${CRIT.map(c=>`<th>${c}</th>`).join("")}<th>Best suited to</th></tr></thead><tbody>${METHODS.map(M=>`<tr><td data-label="Method" class="full"><b>${M.name}</b></td>${CRIT.map((c,j)=>{const v=(S.A.ratings[M.k]||{})[j]||"";return `<td data-label="${c}"><select id="rt-${M.k}-${j}" data-rm="${M.k}" data-rj="${j}" aria-label="${M.name}: ${c}"><option value="">Choose…</option>${["Low","Medium","High"].map(o=>`<option${v===o?" selected":""}>${o}</option>`).join("")}</select>${S.A.staff?`<span class="ref">Staff: ${REF[M.k].v[j]}</span>`:""}</td>`}).join("")}<td data-label="Best suited to" class="full" style="white-space:normal;min-width:200px">${S.A.staff?`<span class="ref">${REF[M.k].best}</span>`:'<span class="hint">Shown with the staff view</span>'}</td></tr>`).join("")}</tbody>`;
   if(fid){const x=document.getElementById(fid);if(x)x.focus()}}
 document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.rm){(S.A.ratings[t.dataset.rm]=S.A.ratings[t.dataset.rm]||{})[t.dataset.rj]=t.value;save();update()}});
-$("#revealRef").addEventListener("click",()=>{S.A.staff=!S.A.staff;save();renderMatrix();update();$("#revealRef").focus()});
+$("#revealRef")&&$("#revealRef").addEventListener("click",()=>{S.A.staff=!S.A.staff;save();renderMatrix();update();$("#revealRef").focus()});
 function renderScen(){if(!$("#scen"))return;$("#scen").innerHTML=SCEN.map((s,i)=>{const pick=S.A.quiz[i];return `<div class="scen" role="group" aria-labelledby="sq-${i}"><p id="sq-${i}"><b>${i+1}.</b> ${s.q}</p><div class="opts2">${METHODS.map(M=>`<button type="button" class="btn" data-sq="${i}" data-sm="${M.k}" aria-pressed="${pick===M.k}">${M.name}</button>`).join("")}</div>${pick?`<p class="fb ${pick===s.a?"ok":"no"}" role="status"><b>${pick===s.a?"Good choice.":"Not the best fit."}</b> ${s.fb[pick]}</p>`:""}</div>`}).join("")}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-sq]");if(!b)return;S.A.quiz[b.dataset.sq]=b.dataset.sm;save();renderScen();update();const x=document.querySelector(`[data-sq="${b.dataset.sq}"][data-sm="${b.dataset.sm}"]`);if(x)x.focus()});
 
 /* ======================================================================
    REFLECT AND SUMMARY
    ====================================================================== */
-function renderRefl(){$("#refl").innerHTML=REFL.map(([k,t,q])=>`<div class="panel q"><h3>${t}</h3><label for="rf-${k}" class="hint">${q}</label><textarea id="rf-${k}" data-rf="${k}">${esc(S.A.refl[k]||"")}</textarea></div>`).join("")}
+function renderRefl(){if(!$("#refl"))return;$("#refl").innerHTML=REFL.map(([k,t,q])=>`<div class="panel q"><h3>${t}</h3><label for="rf-${k}" class="hint">${q}</label><textarea id="rf-${k}" data-rf="${k}">${esc(S.A.refl[k]||"")}</textarea></div>`).join("")}
 function exclusions(key){const T=TBL[key],c=T.cols.find(c=>!c.t);return DS()[key].map((r,i)=>r.inc?null:`${T.row.toLowerCase()} ${i+1} (${r[c.k]}${c.u?" "+c.u:""}): ${r.why||"no reason given"}`).filter(Boolean)}
 function updateReport(){if(!R)return;const L=[],A=S.A,p=DS().p;
   L.push("RIVER FLOW GAUGING · River Derwent tributary, Keswick");
@@ -1772,11 +1672,6 @@ function updateReport(){if(!R)return;const L=[],A=S.A,p=DS().p;
   L.push("");L.push("READINGS I EXCLUDED, AND WHY");
   const ex=[["Group estimates","expert"],...XS.map(k=>["Survey "+k,k]),["Float runs","float"],["Upstream staff","up"],["Downstream staff","down"],["Calibration","cal"],["EC series","dil"]].map(([l,k])=>[l,exclusions(k)]).filter(([,x])=>x.length);
   if(!ex.length)L.push("  none");ex.forEach(([l,x])=>L.push(`  ${l}: ${x.join("; ")}`));
-  L.push("");L.push("STEP QUESTIONS");
-  Object.keys(INTERP).forEach(m=>{L.push(`  ${STEPS.find(s=>s.k===m).name}: ${INTERP[m]}`);L.push("    "+((A.interp[m]||"").trim().replace(/\n/g,"\n    ")||"—"))});
-  
-  L.push("");L.push("MY RATINGS (accuracy, complexity, equipment, cost, safety risk)");METHODS.forEach(M=>L.push(`  ${M.name}: ${CRIT.map((c,j)=>(A.ratings[M.k]||{})[j]||"—").join(", ")}`));
-  L.push("");L.push("REFLECTIONS");REFL.forEach(([k,t])=>{L.push(`  ${t}:`);L.push("    "+((A.refl[k]||"").trim().replace(/\n/g,"\n    ")||"—"))});
   if(typeof QZ!=="undefined"){L.push("");L.push(QZ.summary())}$("#report").value=L.join("\n")}
 $("#copyRep").addEventListener("click",()=>copyText($("#report"),$("#copyMsg"),()=>{S.A.copied=true;save();updateTasks()}));
 $("#report").addEventListener("copy",()=>{S.A.copied=true;save();updateTasks()});
