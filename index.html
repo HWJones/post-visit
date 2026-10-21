@@ -320,6 +320,10 @@ tr.anom td{background:var(--flag-tint)}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size:13px;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px}
 .bigscore{font-family:var(--f-display);font-weight:800;font-size:34px}
+.vwrap{position:relative;width:100%;max-width:100%;aspect-ratio:16/9;background:#000;border-radius:var(--r);overflow:hidden}
+.vwrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.vcard{display:grid;gap:8px;align-content:start;min-width:0}
 </style>
 </head>
 <body>
@@ -363,6 +367,7 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
     <p class="hint"><b>This page doesn't save anything.</b> If you reload or leave it, your work is gone. Try to finish in one sitting, back up typed-in readings with <i>Back up / share</i>, and copy your summary on the last step. Haven't done the pre-visit guide yet? Do that first.</p>
   </div>
 
+<div class="panel"><h3>Get to know the setting</h3><div class="vgrid"><div class="vcard"><div class="vwrap"><iframe src="https://imperial.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=58090c1a-cb4a-4421-9722-acbf0104dfb3&amp;autoplay=false&amp;offerviewer=true&amp;showtitle=true&amp;showbrand=false&amp;captions=true&amp;interactivity=all" title="Video: Environmental setting" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div><p class="hint"><b>Environmental setting.</b> Getting to know the hydrological and environmental setting of a site, using the Colne Valley Regional Park as an example. <a href="https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=58090c1a-cb4a-4421-9722-acbf0104dfb3" target="_blank" rel="noopener">Open in Panopto</a> if the video doesn't play here (you may need to sign in with your Imperial account).</p></div><div class="vcard"><div class="vwrap"><iframe src="https://imperial.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=f2a32dbf-ab3c-4373-ac22-acbf010561c1&amp;autoplay=false&amp;offerviewer=true&amp;showtitle=true&amp;showbrand=false&amp;captions=true&amp;interactivity=all" title="Video: Misbourne gauging station" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div><p class="hint"><b>Misbourne gauging station.</b> How a permanent gauging station measures river flow. <a href="https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=f2a32dbf-ab3c-4373-ac22-acbf010561c1" target="_blank" rel="noopener">Open in Panopto</a> if the video doesn't play here (you may need to sign in with your Imperial account).</p></div></div></div>
   <div class="grid2">
     <div class="panel">
       <h3>The study reach</h3>
@@ -419,6 +424,7 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
     <p>Experienced hydrologists can often estimate <button type="button" class="term" data-term="discharge">discharge</button> to within a factor of two just by looking. Make your own estimate <b>before</b> you see anyone else's.</p>
   </div>
   <div class="taskbox"><h3>To do on this step <span class="count" id="tc-expert"></span></h3><ol class="tasks" id="tasks-expert"></ol></div>
+  <details class="more"><summary>Recap video: Expert estimation</summary><div class="body"><div class="vcard"><div class="vwrap"><iframe src="https://imperial.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=9749a05d-0151-4bcf-951d-acbf0108dd0d&amp;autoplay=false&amp;offerviewer=true&amp;showtitle=true&amp;showbrand=false&amp;captions=true&amp;interactivity=all" title="Video: Expert estimation" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div><p class="hint"><b>Expert estimation.</b> How to estimate discharge by eye. <a href="https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=9749a05d-0151-4bcf-951d-acbf0108dd0d" target="_blank" rel="noopener">Open in Panopto</a> if the video doesn't play here (you may need to sign in with your Imperial account).</p></div></div></details>
   <div class="grid2">
     <div class="panel">
       <h3>Your estimate by eye</h3>
@@ -514,6 +520,7 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
     <p>Time a float over a measured reach to get the <b>surface</b> velocity. The surface moves faster than the water as a whole, so multiply by a <button type="button" class="term" data-term="kcoef">velocity coefficient k</button>, usually 0.8–0.9.</p>
   </div>
   <div class="taskbox"><h3>To do on this step <span class="count" id="tc-float"></span></h3><ol class="tasks" id="tasks-float"></ol></div>
+  <details class="more"><summary>Recap video: Float gauging</summary><div class="body"><div class="vcard"><div class="vwrap"><iframe src="https://imperial.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=26210b90-a745-403e-863e-acbf01054aef&amp;autoplay=false&amp;offerviewer=true&amp;showtitle=true&amp;showbrand=false&amp;captions=true&amp;interactivity=all" title="Video: Float gauging" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div><p class="hint"><b>Float gauging.</b> Timing floats to measure surface velocity. <a href="https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=26210b90-a745-403e-863e-acbf01054aef" target="_blank" rel="noopener">Open in Panopto</a> if the video doesn't play here (you may need to sign in with your Imperial account).</p></div></div></details>
   <div class="grid2">
     <div class="panel">
       <h3>How it works</h3>
@@ -571,6 +578,7 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
     <p>No velocity measurement at all. Manning's equation predicts the flow from the channel's shape, the <button type="button" class="term" data-term="slope">water-surface slope</button> and the bed's roughness, <button type="button" class="term" data-term="manning">Manning's n</button>. It's also how flood peaks are estimated after the event, from debris lines.</p>
   </div>
   <div class="taskbox"><h3>To do on this step <span class="count" id="tc-slope"></span></h3><ol class="tasks" id="tasks-slope"></ol></div>
+  <details class="more"><summary>Recap video: Slope-area method</summary><div class="body"><div class="vcard"><div class="vwrap"><iframe src="https://imperial.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=78de21af-bbe5-453a-9524-acc200a46e68&amp;autoplay=false&amp;offerviewer=true&amp;showtitle=true&amp;showbrand=false&amp;captions=true&amp;interactivity=all" title="Video: Slope-area method" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div><p class="hint"><b>Slope-area method.</b> Estimating discharge from the water-surface slope and channel roughness. <a href="https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=78de21af-bbe5-453a-9524-acc200a46e68" target="_blank" rel="noopener">Open in Panopto</a> if the video doesn't play here (you may need to sign in with your Imperial account).</p></div></div></details>
   <div class="grid2">
     <div class="panel">
       <h3>How it works</h3>
@@ -632,6 +640,7 @@ textarea#summary{width:100%;min-height:220px;font-family:var(--f-mono);font-size
     <p>Tip a known mass of dissolved salt into the stream. Downstream, a meter logs the <button type="button" class="term" data-term="ec">electrical conductivity (EC)</button> as the salt cloud passes. More water dilutes the salt more, so a smaller area under the curve means a bigger flow.</p>
   </div>
   <div class="taskbox"><h3>To do on this step <span class="count" id="tc-dil"></span></h3><ol class="tasks" id="tasks-dil"></ol></div>
+  <details class="more"><summary>Recap video: Dilution gauging</summary><div class="body"><div class="vcard"><div class="vwrap"><iframe src="https://imperial.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=1ac4721d-a63c-40e4-ad5f-acbf01051ed8&amp;autoplay=false&amp;offerviewer=true&amp;showtitle=true&amp;showbrand=false&amp;captions=true&amp;interactivity=all" title="Video: Dilution gauging" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe></div><p class="hint"><b>Dilution gauging.</b> Measuring discharge with a salt slug and an EC meter. <a href="https://imperial.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=1ac4721d-a63c-40e4-ad5f-acbf01051ed8" target="_blank" rel="noopener">Open in Panopto</a> if the video doesn't play here (you may need to sign in with your Imperial account).</p></div></div></details>
   <div class="grid2">
     <div class="panel">
       <h3>How it works</h3>
